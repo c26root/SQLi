@@ -23,8 +23,9 @@ def get_host():
     port = int(s[1])
     return host, port
 
+# 生成选项
+def set_options(url, data=''):
 
-def start_task(url, data=''):
     method = 'GET'
     if data:
         method = 'POST'
@@ -71,29 +72,25 @@ def start_task(url, data=''):
         else:
             headers[k] = v + '*'
 
-    # 相关污染数据
-    print
-    print '[URL] {}'.format(url)
-    if data:
-        print '[POST_DATA] {}'.format(data)
-    print '[HEADER]'
-    print json.dumps(headers, indent=2)
-    print
-
     headers_str = '\r\n'.join(['{}: {}'.format(k, v)
                                for k, v in headers.iteritems()])
 
     options = {}
     options['url'] = url
-    # Custom Headers
+    # 使用自定义头部
     options['headers'] = headers_str
-    # Flush Session Log
+    # 不使用缓存记录
     options['flushSession'] = True
     if data:
         options['method'] = 'POST'
         options['data'] = data
     else:
         options['method'] = 'GET'
+
+    return options
+
+
+def start_task(options):
 
     # 创建新任务
     taskid = api.task_new()
@@ -115,15 +112,13 @@ if __name__ == '__main__':
     for host in hosts:
         print '[HOST]', host
     print
-    
-    print api.get_info()
-    print
-
 
     url = 'http://172.16.13.132/app.php?id=1&user=a'
 
-    data=''
+    data = ''
 
+    # 清除所有任务
     api.admin_flush()
-
-    start_task(url, data=data)
+    options = set_options(url)
+    print json.dumps(options, indent=2)
+    start_task(options)
