@@ -31,12 +31,6 @@ def set_options(url, data=''):
         method = 'POST'
 
     headers['Referer'] = url
-    headers[
-        'User-Agent'] = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
-    headers['X-Forwarded-For'] = '8.8.8.8'
-    headers['Client-IP'] = '8.8.8.8'
-    headers['X-Real-IP'] = '8.8.8.8'
-    headers['Cookie'] = 'userid=1; user=2; password=123'
 
     # 污染URL
     parse = Url.url_parse(url)
@@ -79,6 +73,7 @@ def set_options(url, data=''):
     options['url'] = url
     # 使用自定义头部
     options['headers'] = headers_str
+
     # 不使用缓存记录
     options['flushSession'] = True
     if data:
@@ -87,6 +82,7 @@ def set_options(url, data=''):
     else:
         options['method'] = 'GET'
 
+    print options
     return options
 
 
@@ -103,7 +99,7 @@ def start_task(options):
 
 if __name__ == '__main__':
 
-    admin_id = '18317be61d15cbb1c37e5ae14301a63c'
+    admin_id = '182e2aab18e1e96a5e4d8be2411d56d3'
     host, port = get_host()
     api = SQLMapApi(host, port, admin_id=admin_id, timeout=5)
 
