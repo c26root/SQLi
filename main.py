@@ -101,7 +101,7 @@ def start_task(options):
     taskid = api.task_new()
     if not taskid:
         print u'创建任务失败'
-
+        exit()
     # 配置参数 开始任务
     api.scan_start(taskid, options=options)
 
