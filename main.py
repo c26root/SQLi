@@ -92,7 +92,7 @@ def set_options(url, data=''):
 
 def start_task(options):
 
-    # 创建新任务
+    # 创建任务
     taskid = api.task_new()
     if not taskid:
         print u'创建任务失败'
