@@ -2,8 +2,18 @@
 
 
 
-### 可部署多节点sqlmapapi来进行注入测试
+### 可部署多主机节点sqlmapapi来进行注入测试
+```
+config.py
 
+# API主机列表
+hosts = [
+    'localhost:8775',
+    '127.0.0.1:8775'
+]
+
+...
+```
 ### 启动sqlmapapi [修改api.py]
 ```
 cd sqlmap
