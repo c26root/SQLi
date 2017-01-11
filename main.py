@@ -98,7 +98,6 @@ def start_task(options):
         print u'创建任务失败'
 
     # 配置参数 开始任务
-    # api.option_set(taskid, options=options)
     api.scan_start(taskid, options=options)
 
 
