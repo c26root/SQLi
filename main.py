@@ -107,7 +107,6 @@ def start_task(url, data=''):
 
 if __name__ == '__main__':
 
-
     admin_id = '18317be61d15cbb1c37e5ae14301a63c'
     host, port = get_host()
     api = SQLMapApi(host, port, admin_id=admin_id, timeout=5)
