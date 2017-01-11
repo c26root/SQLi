@@ -3,15 +3,19 @@
 
 import json
 import random
-from config import hosts, timeout, headers
+from config import hosts, timeout, headers, admin_id
 from sqlmapapi import SQLMapApi
 from utils import Url
 
 # 获取节点列表
+
+
 def get_host_list():
     return hosts
 
 # 随机选择一个节点
+
+
 def get_host():
     host, port = 'localhost', 8775
     host = random.choice(hosts)
@@ -24,13 +28,18 @@ def get_host():
     return host, port
 
 # 生成选项
-def set_options(url, data=''):
+
+
+def set_options(url, data='', cookie='', referer=''):
 
     method = 'GET'
     if data:
         method = 'POST'
 
-    headers['Referer'] = url
+    headers['Referer'] = referer or url
+
+    if cookie:
+        headers['Cookie'] = cookie
 
     # 污染URL
     parse = Url.url_parse(url)
@@ -66,6 +75,7 @@ def set_options(url, data=''):
         else:
             headers[k] = v + '*'
 
+    # 转成HTTP字符
     headers_str = '\r\n'.join(['{}: {}'.format(k, v)
                                for k, v in headers.iteritems()])
 
@@ -82,7 +92,6 @@ def set_options(url, data=''):
     else:
         options['method'] = 'GET'
 
-    print options
     return options
 
 
@@ -99,7 +108,6 @@ def start_task(options):
 
 if __name__ == '__main__':
 
-    admin_id = '182e2aab18e1e96a5e4d8be2411d56d3'
     host, port = get_host()
     api = SQLMapApi(host, port, admin_id=admin_id, timeout=5)
 
@@ -107,14 +115,15 @@ if __name__ == '__main__':
     for host in hosts:
         print '[HOST]', host
     print
-    
 
     url = 'http://172.16.13.132/app.php?id=1&user=a'
-
     data = ''
+    cookie = ''
 
     # 清除所有任务
     api.admin_flush()
-    options = set_options(url)
+    options = set_options(url, data, cookie)
     print json.dumps(options, indent=2)
+    for i in options['headers'].split('\r\n'):
+        print i
     start_task(options)
