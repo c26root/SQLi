@@ -41,7 +41,7 @@ class SQLMapApi:
         """
         url = '{}/admin/{}/list'.format(self.url, self.admin_id)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
@@ -53,7 +53,7 @@ class SQLMapApi:
         """
         url = '{}/admin/{}/flush'.format(self.url, self.admin_id)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
@@ -62,7 +62,7 @@ class SQLMapApi:
     def task_new(self):
         url = '{}/task/new'.format(self.url)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json().get('taskid')
         except Exception as e:
             print str(e)
@@ -71,7 +71,7 @@ class SQLMapApi:
     def task_delete(self, taskid):
         url = '{}/task/{}/delete'.format(self.url, taskid)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
@@ -83,19 +83,19 @@ class SQLMapApi:
         """
         url = '{}/option/{}/list'.format(self.url, taskid)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
             return {}
 
-    def option_get(self, taskid):
+    def option_get(self, taskid, options={}):
         """
         Get the value of an option (command line switch) for a certain task ID
         """
         url = '{}/option/{}/get'.format(self.url, taskid)
         try:
-            r = self.http_post(url)
+            r = self._request(url, json=options, method='post')
             return r.json()
         except Exception as e:
             print str(e)
@@ -107,7 +107,7 @@ class SQLMapApi:
         """
         url = '{}/option/{}/set'.format(self.url, taskid)
         try:
-            r = self.http_post(url, json=options)
+            r = self._request(url, json=options, method='post')
             return r.json()
         except Exception as e:
             print str(e)
@@ -119,7 +119,7 @@ class SQLMapApi:
         """
         url = '{}/scan/{}/start'.format(self.url, taskid)
         try:
-            r = self.http_post(url, json=options)
+            r = self._request(url, json=options, method='post')
             return r.json()
         except Exception as e:
             print str(e)
@@ -131,7 +131,7 @@ class SQLMapApi:
         """
         url = '{}/scan/{}/stop'.format(self.url, taskid)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
@@ -143,7 +143,7 @@ class SQLMapApi:
         """
         url = '{}/scan/{}/kill'.format(self.url, taskid)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
@@ -156,7 +156,7 @@ class SQLMapApi:
         """
         url = '{}/scan/{}/status'.format(self.url, taskid)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
@@ -168,7 +168,7 @@ class SQLMapApi:
         """
         url = '{}/scan/{}/data'.format(self.url, taskid)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
@@ -186,7 +186,7 @@ class SQLMapApi:
         """
         url = '{}/scan/{}/log'.format(self.url, taskid)
         try:
-            r = self.http_get(url)
+            r = self._request(url)
             return r.json()
         except Exception as e:
             print str(e)
@@ -198,35 +198,25 @@ class SQLMapApi:
         """
         pass
 
-    """HTTP GET"""
+    """Send HTTP Request"""
 
-    def http_get(self, url, params={}, headers={}):
+    def _request(self, url, params={}, data={}, json={}, headers={}, method='get'):
+
         headers = headers or self.headers
+
         try:
-            print '[GET]', url
-            r = requests.get(
-                url, params=params, headers=headers, timeout=self.timeout)
+            print'[{0}] {1}'.format(method.upper(), url)
+            if method.lower() == 'post':
+                r = requests.post(
+                    url, params=params, data=data, json=json, headers=headers, timeout=self.timeout)
+            else:
+                r = requests.get(
+                    url, params=params, headers=headers, timeout=self.timeout)
             return r
         except Exception as e:
             print '[ERROR]', str(e)
             return requests.Request()
-        finally:
-            print
 
-    """HTTP POST"""
-
-    def http_post(self, url, params={}, data={}, json={}, headers={}):
-        headers = headers or self.headers
-        try:
-            print '[POST]', url
-            r = requests.post(
-                url, params=params, data=data, json=json, headers=headers, timeout=self.timeout)
-            return r
-        except Exception as e:
-            print '[ERROR]', str(e)
-            return requests.Request()
-        finally:
-            print
 
 if __name__ == '__main__':
     pass

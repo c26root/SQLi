@@ -8,14 +8,10 @@ from sqlmapapi import SQLMapApi
 from utils import Url
 
 # 获取节点列表
-
-
 def get_host_list():
     return hosts
 
 # 随机选择一个节点
-
-
 def get_host():
     host, port = 'localhost', 8775
     host = random.choice(hosts)
@@ -28,9 +24,7 @@ def get_host():
     return host, port
 
 # 生成选项
-
-
-def set_options(url, data='', cookie='', referer=''):
+def get_options(url, data='', cookie='', referer=''):
 
     method = 'GET'
     if data:
@@ -122,7 +116,7 @@ if __name__ == '__main__':
 
     # 清除所有任务
     api.admin_flush()
-    options = set_options(url, data, cookie)
+    options = get_options(url, data, cookie)
     print json.dumps(options, indent=2)
     for i in options['headers'].split('\r\n'):
         print i
