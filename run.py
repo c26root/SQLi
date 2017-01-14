@@ -118,25 +118,31 @@ def start_task(options):
 
 
 if __name__ == '__main__':
+    print '[+] Host Number:', len(hosts)
+    print '[+] Host List:',
+    print json.dumps([host.split(':')[0] for host in hosts], indent=2)
 
+    # 获取主机
     host, port, admin_id = get_host()
-    print host, port ,admin_id
-    exit()
     api = SQLMapApi(host, port, admin_id=admin_id, timeout=5)
 
-    print '[HOST LIST]'
-    for host in hosts:
-        print '[HOST]', host
-    print
-
+    # 注入url
     url = 'http://172.16.13.132/app.php?id=1&user=a'
+
+    # POST数据
     data = ''
+
+    # Cookie
     cookie = ''
 
     # 清除所有任务
     api.admin_flush()
-    options = get_options(url, data, cookie)
-    print json.dumps(options, indent=2)
-    for i in options['headers'].split('\r\n'):
-        print i
+
+    # 获取发送选项
+    options = get_options(url, data, cookie)        
+
+    # 开始任务
     start_task(options)
+    
+    options['headers'] = options['headers'].split('\r\n')
+    print json.dumps(options, indent=2)
