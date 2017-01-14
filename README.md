@@ -4,7 +4,8 @@
 
 ### 可部署多主机节点sqlmapapi来进行注入测试 (随机选择主机)
 ```
-config.py
+vim config.py
+```
 ```
 # API主机列表 格式 host:port:admin_id 如果不填写
 hosts = [
