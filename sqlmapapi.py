@@ -198,10 +198,11 @@ class SQLMapApi:
         """
         pass
 
-    """Send HTTP Request"""
 
     def _request(self, url, params={}, data={}, json={}, headers={}, method='get'):
 
+        """Send HTTP Request"""
+        
         headers = headers or self.headers
 
         try:
