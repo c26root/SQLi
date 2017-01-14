@@ -54,15 +54,15 @@ python main.py
 ```
 
 ```
-curl http://127.0.0.1:8775/admin/182e2aab18e1e96a5e4d8be2411d56d3/list
+curl http://127.0.0.1:8775/admin/2872af061add7b2fea33e5b1f9434338/list
 ```
 
 ```
 {
     "tasks": {
-        "e9bedf6160147de2": "running"
-    }, 
-    "tasks_num": 1, 
+        "2f5d4e375952518c": "terminated"
+    },
+    "tasks_num": 1,
     "success": true
 }
 
