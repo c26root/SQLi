@@ -54,7 +54,7 @@ def get_options(url, data='', cookie='', referer=''):
     )
 
     # 污染POST数据
-    if data:
+    if data and isinstance(data, basestring):
         data = dict(Url.qs_parse(data))
         data = Url.build_qs(data)
         data = data.replace('&', '*&') + '*'
