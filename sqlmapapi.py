@@ -205,7 +205,7 @@ class SQLMapApi:
         headers = headers or self.headers
 
         try:
-            print'[{0}] {1}'.format(method.upper(), url)
+            print '[{0}] {1}'.format(method.upper(), url)
             if method.lower() == 'post':
                 r = requests.post(
                     url, params=params, data=data, json=json, headers=headers, timeout=self.timeout)
