@@ -221,4 +221,3 @@ class SQLMapApi:
 
 if __name__ == '__main__':
     pass
-    # api = SQLMapApi(host, port)

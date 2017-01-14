@@ -7,6 +7,11 @@ from config import hosts, timeout, headers, admin_id
 from sqlmapapi import SQLMapApi
 from utils import Url
 
+try:
+    basestring
+except NameError:
+    basestring = string
+
 # 获取节点列表
 def get_host_list():
     return hosts
