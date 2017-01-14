@@ -26,7 +26,7 @@ python sqlmapapi.py -s -H 0.0.0.0
 
 ### 测试
 ```
-python main.py
+python run.py
 ```
 
 ```
