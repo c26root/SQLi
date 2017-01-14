@@ -56,9 +56,6 @@ def get_options(url, data='', cookie='', referer=''):
     # 污染POST数据
     if data:
         data = dict(Url.qs_parse(data))
-        # for k in data.keys():
-        #   data[k] += '*'
-        # data = Url.build_qs(data).replace('%2A', '*')
         data = Url.build_qs(data)
         data = data.replace('&', '*&') + '*'
 
@@ -69,7 +66,7 @@ def get_options(url, data='', cookie='', referer=''):
         else:
             headers[k] = v + '*'
 
-    # 转成HTTP字符
+    # 转成HTTP头
     headers_str = '\r\n'.join(['{}: {}'.format(k, v)
                                for k, v in headers.iteritems()])
 
