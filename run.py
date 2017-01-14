@@ -3,7 +3,7 @@
 
 import json
 import random
-from config import hosts, timeout, headers, admin_id
+from config import hosts, timeout, headers, default_admin_id
 from sqlmapapi import SQLMapApi
 from utils import Url
 
@@ -13,22 +13,37 @@ except NameError:
     basestring = string
 
 # 获取节点列表
+
+
 def get_host_list():
     return hosts
 
 # 随机选择一个节点
+
+
 def get_host():
-    host, port = 'localhost', 8775
+    # 初始化
+    host, port, admin_id = '127.0.0.1', 8775, default_admin_id
     host = random.choice(hosts)
-    s = host.split(':')
-    if len(s) != 2:
+    pairs = host.split(':')
+
+    if len(pairs) == 2:
+        host = pairs[0]
+        port = int(pairs[1])
+        admin_i = admin_id
+    elif len(pairs) == 3:
+        host = pairs[0]
+        port = int(pairs[1])
+        admin_id = pairs[2]
+    else:
         print '主机端口格式错误'
         return False
-    host = s[0]
-    port = int(s[1])
-    return host, port
+
+    return host, port, admin_id
 
 # 生成选项
+
+
 def get_options(url, data='', cookie='', referer=''):
 
     method = 'GET'
@@ -104,7 +119,8 @@ def start_task(options):
 
 if __name__ == '__main__':
 
-    host, port = get_host()
+    host, port, admin_id = get_host()
+
     api = SQLMapApi(host, port, admin_id=admin_id, timeout=5)
 
     print '[HOST LIST]'

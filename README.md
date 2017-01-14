@@ -6,11 +6,14 @@
 ```
 config.py
 
-# API主机列表
+# API主机列表 格式 host:port:admin_id
 hosts = [
-    'localhost:8775',
-    '127.0.0.1:8775'
+    '127.0.0.1:8775',
+    'x.x.x.x:8775:2872af061add7b2fea33e5b1f9434338',
 ]
+
+# 默认管理id 建议修改sqlmapapi中admin_id为固定hash
+default_admin_id = '182e2aab18e1e96a5e4d8be2411d56d3'
 
 ...
 ```
