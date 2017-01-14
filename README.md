@@ -5,11 +5,11 @@
 ### 可部署多主机节点sqlmapapi来进行注入测试 (随机选择主机)
 ```
 config.py
-
-# API主机列表 格式 host:port:admin_id
+```
+# API主机列表 格式 host:port:admin_id 如果不填写
 hosts = [
-    '127.0.0.1:8775',
-    'x.x.x.x:8775:2872af061add7b2fea33e5b1f9434338',
+    'localhost:8080',
+    '127.0.0.1:8775:2872af061add7b2fea33e5b1f9434338',
 ]
 
 # 默认管理id 建议修改sqlmapapi中admin_id为固定hash

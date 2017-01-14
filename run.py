@@ -34,7 +34,7 @@ def get_host():
     elif len(pairs) == 3:
         host = pairs[0]
         port = int(pairs[1])
-        admin_id = pairs[2]
+        admin_id = pairs[2] or admin_id
     else:
         print '主机端口格式错误'
         return False
@@ -120,7 +120,8 @@ def start_task(options):
 if __name__ == '__main__':
 
     host, port, admin_id = get_host()
-
+    print host, port ,admin_id
+    exit()
     api = SQLMapApi(host, port, admin_id=admin_id, timeout=5)
 
     print '[HOST LIST]'
