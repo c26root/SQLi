@@ -148,7 +148,6 @@ class SQLMapApi:
         except Exception as e:
             print str(e)
             return {}
-            return {}
 
     def scan_status(self, taskid):
         """
@@ -204,7 +203,7 @@ class SQLMapApi:
         headers = headers or self.headers
 
         try:
-            print '[{0}] {1}'.format(method.upper(), url)
+            # print '[{0}] {1}'.format(method.upper(), url)
             if method.lower() == 'post':
                 r = requests.post(
                     url, params=params, data=data, json=json, headers=headers, timeout=self.timeout)
@@ -213,7 +212,7 @@ class SQLMapApi:
                     url, params=params, headers=headers, timeout=self.timeout)
             return r
         except Exception as e:
-            print '[ERROR]', str(e)
+            # print '[ERROR]', str(e)
             return requests.Request()
 
 
