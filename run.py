@@ -20,8 +20,6 @@ except NameError:
 
 
 # 随机选择一个节点
-
-
 def get_host():
     # 初始化
     host, port, admin_id = '127.0.0.1', 8775, DEFAULT_ADMIN_ID
@@ -41,6 +39,7 @@ def get_host():
         return False
 
     return host, port, admin_id
+
 
 def get_all_host():
     ret = []
@@ -62,19 +61,9 @@ def get_all_host():
         ret.append((host, port, admin_id))
     return ret
 
-# 生成选项
-def get_options(url, data='', cookie='', referer=''):
 
-    method = 'GET'
-    if data:
-        method = 'POST'
-    headers = HEADERS.copy()
-    headers['Referer'] = referer or url
-
-    if cookie:
-        headers['Cookie'] = cookie
-
-    # 污染URL
+# 污染URL
+def url_pollution(url):
     parse = Url.url_parse(url)
     query = parse.query
     if not query:
@@ -91,18 +80,43 @@ def get_options(url, data='', cookie='', referer=''):
          qs,
          parse.fragment)
     )
+    return url
+
+# 污染 querystring
+def qs_pollution(qs):
+    data = dict(Url.qs_parse(qs))
+    data = Url.build_qs(data)
+    data = data.replace('&', '*&') + '*'
+    return data
+
+
+# 生成选项
+def get_options(url, data, headers):
+
+    method = 'GET'
+    if data:
+        method = 'POST'
+
+    # 拷贝对象 防止追加星号
+    headers = headers.copy()
+
+    # 检查额外参数是否存在 否则添加
+    for header in HEADERS:
+        if header in ('Referer', 'User-Agent', 'X-Forwarded-For', 'Client-IP', 'X-Real-IP'):
+            headers[header] = headers.get(header) or HEADERS.get(header)
+
+    # 污染URL
+    url = url_pollution(url)
 
     # 污染POST数据
     if data and isinstance(data, basestring):
-        data = dict(Url.qs_parse(data))
-        data = Url.build_qs(data)
-        data = data.replace('&', '*&') + '*'
+        data = qs_pollution(data)
 
-    # 污染头部
+    # Cookie特殊处理 污染的默认头统一添加星号
     for k, v in headers.iteritems():
         if k == 'Cookie':
             headers[k] = v.replace(';', '*;') + '*'
-        else:
+        elif k in HEADERS.keys():
             headers[k] = v + '*'
 
     # 转成HTTP头
@@ -126,66 +140,79 @@ def get_options(url, data='', cookie='', referer=''):
 
 
 def start_task(options):
-
     # 创建任务
     taskid = api.task_new()
     if not taskid:
-        logging.info(u'创建任务失败')
+        logging.info('Create Task Failed')
         # print u'创建任务失败'
-        return 
+        return
     # 配置参数 开始任务
     api.scan_start(taskid, options=options)
+    return taskid
+
+
+# 遍历所有节点检查任务状态
+def check_host_status():
+
+    for host in get_all_host():
+        host, port, admin_id = host
+        api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
+        admin_list = api.admin_list()
+        if admin_list:
+            tasks = admin_list.get('tasks')
+            logging.info(
+                '[{0}] Task Total Number: {1}'.format(host, len(tasks)))
+            logging.info(
+                '[{0}] Tasks: {1}'.format(host, json.dumps(tasks, indent=2))) 
+            for taskid in tasks:
+                status = tasks.get(taskid)
+
+                # 处理跑完的和没有跑起来的
+                if status in ('terminated', 'not running'):
+                    # 跑完的获取结果查看是否有结果
+                    if status == 'terminated':
+                        task_data = api.scan_data(taskid)
+                        if task_data.get('data'):
+                            logging.info(
+                                'Found Inject Task Id: {0}'.format(taskid))
+                            # print task_data
+                    result = api.task_delete(taskid)
+                    if result.get('success'):
+                        logging.info('Delete Task Id: {0}'.format(taskid))
 
 
 def run():
 
+    global url, data, headers, api
+
     while 1:
+        print '#' * 120
+        check_host_status()
+        print '#' * 120
 
-        # 遍历所有节点检查任务状态
-        for host in get_all_host():
-            host, port, admin_id = host
-            api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
-            admin_list = api.admin_list()
-            if admin_list:
-                tasks = admin_list.get('tasks')
-                logging.info('[{0}] tasks total number: {1}'.format(host, len(tasks)))
-                for taskid in tasks:
-                    status = tasks.get(taskid)
+        # 获取存在空闲的主机
+        host, port, admin_id = get_host()
+        api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
+        admin_list = api.admin_list()
+        if admin_list:
+            tasks = admin_list.get('tasks')
+            if len(tasks) >= MAX_TASK_NUMBER:
+                logging.info('[{0}] Queue Full'.format(host))
+                time.sleep(3)
+                continue
 
-                    # 处理跑完的和没有跑起来的
-                    if status in ('terminated', 'not running'):
-                        # 跑完的获取结果查看是否有结果
-                        if status == 'terminated':
-                            task_data = api.scan_data(taskid)
-                            if task_data.get('data'):
-                                logging.info('inject task id: {}'.format(taskid))
-                                # print task_data
-                        result = api.task_delete(taskid)
-                        if result.get('success'):
-                            logging.info('delete task id: {}'.format(taskid))
+        # 开始新任务
+        url, data, cookie = url, data, headers
+        options = get_options(url, data, cookie)
+        taskid = start_task(options)
+        logging.info('Create Task Success, Task Id: [{0}]'.format(taskid))
 
-            
-            # 获取存在空闲的主机
-            host, port, admin_id = get_host()
-            api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
-            admin_list = api.admin_list()
-            if admin_list:
-                tasks = admin_list.get('tasks')
-                if len(tasks) >= MAX_TASK_NUMBER:
-                    logging.info('[{0}] Queue Full'.format(host))
-                    time.sleep(3)
-                    continue
+        options['headers'] = options['headers'].split('\r\n')
+        logging.info('[{0}] Task Options: {1}'.format(
+            taskid, json.dumps(options, indent=2)))
 
-            # 获取发送选项
-            url, data, cookie = http.get('url'), http.get('data'), http.get('cookie')
-            options = get_options(url, data, cookie)        
-            # 开始任务
-            start_task(options)
-            options['headers'] = options['headers'].split('\r\n')
-            print json.dumps(options, indent=2)
-            
-            logging.info('sleep 5s')
-            time.sleep(SLEEP_TIME)
+        logging.info('Sleep {0}s'.format(SLEEP_TIME))
+        time.sleep(SLEEP_TIME)
 
 
 if __name__ == '__main__':
@@ -197,15 +224,13 @@ if __name__ == '__main__':
     print '[+] Host List:',
     print json.dumps([host.split(':')[0] for host in HOSTS], indent=2)
 
-
-    http = {
-        # 'url': 'http://172.16.13.132/app.php?id=1&user=a',
-        'url': 'http://daza.im:82/api.php?username=a1',
-        'data': '',
-        'cookie': 'a=1; b=2',
+    url = 'http://daza.im:82/api.php?username=a1'
+    data = ''
+    headers = {
+        'User-Agent': '132',
+        'Cookie': 'a=1',
+        'X-Forwarded-For': '1.1.1.1',
+        'Accept-Encoding': 'gzip, deflate, sdch',
     }
 
-
-
-
-
+    run()
