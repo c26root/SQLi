@@ -5,10 +5,9 @@
 HOSTS = [
     # 'localhost:8775',
     'daza.im:8775',
-    'hk.daza.im:8775'
-    # 'hk.daza.im:8775:77e37574d113f855da13cdfddbc4fa7e',
-    # 'tokyo.daza.im:8775:23c961d42f5cda426f6de43dc56786fb',
-    # 'tokyo2.daza.im:8775:f07d0eb8bb70c7d1e951ee85cdfeacdd',
+    'hk.daza.im:8775',
+    'tokyo.daza.im:8775',
+    'tokyo2.daza.im:8775',
 ]
 
 # 默认管理id 建议修改sqlmap/lib/utils/api.py中admin_id为固定hash
@@ -25,6 +24,10 @@ HEADERS = {
     'Client-IP': '8.8.8.8',
     'X-Real-IP': '8.8.8.8'
 }
+
+SLEEP_TIME = 5
+
+MAX_TASK_NUMBER = 5
 
 # 需要污染的头部
 POLLUTION_HEADERS = (

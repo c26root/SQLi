@@ -6,7 +6,7 @@ import time
 import random
 import logging
 
-from config import HOSTS, TIMEOUT, DEFAULT_ADMIN_ID
+from config import HOSTS, TIMEOUT, SLEEP_TIME, MAX_TASK_NUMBER, DEFAULT_ADMIN_ID
 from config import HEADERS
 
 from sqlmapapi import SQLMapApi
@@ -136,6 +136,7 @@ def start_task(options):
     # 配置参数 开始任务
     api.scan_start(taskid, options=options)
 
+    
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.DEBUG,
@@ -150,7 +151,7 @@ if __name__ == '__main__':
         # 'url': 'http://172.16.13.132/app.php?id=1&user=a',
         'url': 'http://daza.im:82/api.php?username=a1',
         'data': '',
-        'cookie': '',
+        'cookie': 'a=1; b=2',
     }
 
 
@@ -193,9 +194,9 @@ if __name__ == '__main__':
             admin_list = api.admin_list()
             if admin_list:
                 tasks = admin_list.get('tasks')
-                if len(tasks) >= 5:
-                    logging.info('Queue Full')
-                    time.sleep(2)
+                if len(tasks) >= MAX_TASK_NUMBER:
+                    logging.info('[{0}] Queue Full'.format(host))
+                    time.sleep(3)
                     continue
             # 获取发送选项
             url, data, cookie = http.get('url'), http.get('data'), http.get('cookie')
@@ -206,4 +207,4 @@ if __name__ == '__main__':
             print json.dumps(options, indent=2)
             
             logging.info('sleep 5s')
-            time.sleep(5)
+            time.sleep(SLEEP_TIME)
