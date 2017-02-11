@@ -136,33 +136,12 @@ def start_task(options):
     # 配置参数 开始任务
     api.scan_start(taskid, options=options)
 
-    
-if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(levelname)s %(message)s')
-
-    print '[+] Host Number:', len(HOSTS)
-    print '[+] Host List:',
-    print json.dumps([host.split(':')[0] for host in HOSTS], indent=2)
-
-
-    http = {
-        # 'url': 'http://172.16.13.132/app.php?id=1&user=a',
-        'url': 'http://daza.im:82/api.php?username=a1',
-        'data': '',
-        'cookie': 'a=1; b=2',
-    }
-
-
-    # 清除所有任务
-    # if api.admin_flush():
-    #     logging.info('flush tasks success')
-
-
+def run():
 
     while 1:
 
+        # 遍历所有节点检查任务状态
         for host in get_all_host():
             host, port, admin_id = host
             api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
@@ -186,11 +165,9 @@ if __name__ == '__main__':
                             logging.info('delete task id: {}'.format(taskid))
 
             
-            # 获取主机
+            # 获取存在空闲的主机
             host, port, admin_id = get_host()
-            
             api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
-            
             admin_list = api.admin_list()
             if admin_list:
                 tasks = admin_list.get('tasks')
@@ -198,6 +175,7 @@ if __name__ == '__main__':
                     logging.info('[{0}] Queue Full'.format(host))
                     time.sleep(3)
                     continue
+
             # 获取发送选项
             url, data, cookie = http.get('url'), http.get('data'), http.get('cookie')
             options = get_options(url, data, cookie)        
@@ -208,3 +186,26 @@ if __name__ == '__main__':
             
             logging.info('sleep 5s')
             time.sleep(SLEEP_TIME)
+
+
+if __name__ == '__main__':
+
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(levelname)s %(message)s')
+
+    print '[+] Host Number:', len(HOSTS)
+    print '[+] Host List:',
+    print json.dumps([host.split(':')[0] for host in HOSTS], indent=2)
+
+
+    http = {
+        # 'url': 'http://172.16.13.132/app.php?id=1&user=a',
+        'url': 'http://daza.im:82/api.php?username=a1',
+        'data': '',
+        'cookie': 'a=1; b=2',
+    }
+
+
+
+
+
