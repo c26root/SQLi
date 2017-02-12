@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 # API主机列表
 HOSTS = [
     # 'localhost:8775',
@@ -31,6 +32,14 @@ SLEEP_TIME = 5
 
 # 单个节点最大任务数
 MAX_TASK_NUMBER = 2
+
+
+# 数据库连接配置
+DB_HOST = '172.16.13.135'
+DB_PORT = 27017
+DB_NAME = 'sqli'
+DB_URL = 'mongodb://{0}:{1}'.format(DB_HOST, DB_PORT)
+
 
 # 需要污染的头部
 POLLUTION_HEADERS = (

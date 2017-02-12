@@ -7,8 +7,8 @@ import random
 import logging
 import Color
 
-from config import HOSTS, TIMEOUT, SLEEP_TIME, MAX_TASK_NUMBER, DEFAULT_ADMIN_ID
-from config import HEADERS
+from config import HOSTS, TIMEOUT, HEADERS, SLEEP_TIME, MAX_TASK_NUMBER, DEFAULT_ADMIN_ID
+from config import DB_URL, DB_NAME
 
 from sqlmapapi import SQLMapApi
 from utils import Url
@@ -238,7 +238,7 @@ def run():
 
 
 def init():
-    
+
     # 清空所有在线任务
     db.tasks.remove()
     logging.info('Initialize Success')
@@ -247,12 +247,6 @@ if __name__ == '__main__':
 
     from pymongo import MongoClient
     from bson.objectid import ObjectId
-
-    # 数据库连接配置
-    DB_HOST = '172.16.13.135'
-    DB_PORT = 27017
-    DB_NAME = 'sqli'
-    DB_URL = 'mongodb://{}:{}'.format(DB_HOST, DB_PORT)
 
     client = MongoClient(DB_URL)
     db = client[DB_NAME]
