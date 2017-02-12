@@ -223,9 +223,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(levelname)s %(message)s')
 
-    print '[+] Host Number:', len(HOSTS)
-    print '[+] Host List:',
-    print json.dumps([host.split(':')[0] for host in HOSTS], indent=2)
+    logging.info('[+] Host Number: {0}'.format(len(HOSTS)))
+    logging.info('[+] Host List: {0}'.format(json.dumps([host.split(':')[0] for host in HOSTS], indent=2)))
 
     url = 'http://daza.im:82/api.php?username=a1'
     data = ''
