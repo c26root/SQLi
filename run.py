@@ -230,8 +230,8 @@ def run():
         logging.info('Create Task Success, Task Id: [{0}]'.format(taskid))
 
         options['headers'] = options['headers'].split('\r\n')
-        logging.info('[{0}] Task Options: {1}'.format(
-            taskid, json.dumps(options, indent=2)))
+        logging.info('[{0}] [{1}] Task Options: {2}'.format(
+            host, taskid, json.dumps(options, indent=2)))
 
         logging.info('Sleep {0}s'.format(SLEEP_TIME))
         time.sleep(SLEEP_TIME)
