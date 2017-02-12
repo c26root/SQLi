@@ -87,5 +87,4 @@ python run.py
 
 ```
 截图
-![](http://i1.piimg.com/567571/016c8be02d581c8b.png)
-![](http://i1.piimg.com/1949/016c8be02d581c8b.png)
+![](http://i1.piimg.com/567571/414bb43ff3b50b7e.jpg)
