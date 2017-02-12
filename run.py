@@ -5,6 +5,7 @@ import json
 import time
 import random
 import logging
+import Color
 
 from config import HOSTS, TIMEOUT, SLEEP_TIME, MAX_TASK_NUMBER, DEFAULT_ADMIN_ID
 from config import HEADERS
@@ -173,8 +174,10 @@ def check_host_status():
                     if status == 'terminated':
                         task_data = api.scan_data(taskid)
                         if task_data.get('data'):
-                            logging.info(
+                            logging.critical(
                                 'Found Inject Task Id: {0}'.format(taskid))
+                            logging.critical(
+                                'Found Inject Task Id: {0}'.format(json.dumps(task_data.get('data'), indent=2)))
                             # print task_data
                     result = api.task_delete(taskid)
                     if result.get('success'):
@@ -186,9 +189,9 @@ def run():
     global url, data, headers, api
 
     while 1:
-        print '#' * 120
+        print '#' * (238 / 2)
         check_host_status()
-        print '#' * 120
+        print '#' * (238 / 2)
 
         # 获取存在空闲的主机
         host, port, admin_id = get_host()
