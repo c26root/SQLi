@@ -3,7 +3,9 @@
 
 
 ### 可部署多主机节点sqlmapapi来进行注入测试 (随机选择主机)
+
 ```
+pip install requests
 vim config.py
 ```
 ```
