@@ -161,9 +161,11 @@ def start_task(options):
 def check_host_status():
 
     for host in get_all_host():
+
         host, port, admin_id = host
         api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
         admin_list = api.admin_list()
+
         if admin_list:
             tasks = admin_list.get('tasks')
             logging.info(
@@ -179,13 +181,23 @@ def check_host_status():
                     if status == 'terminated':
                         task_data = api.scan_data(taskid)
                         if task_data.get('data'):
+
                             logging.critical(
                                 'Found Inject Task Id: {0}'.format(taskid))
-                            logging.critical(
-                                'Found Inject Task Id: {0}'.format(json.dumps(task_data.get('data'), indent=2)))
-                            # print task_data
+                            # logging.critical(
+                            # 'Found Inject Task Id: {0}'.format(json.dumps(task_data.get('data'), indent=2)))
+
+                            # 保存注入结果和选项
+                            task_data['taskid'] = taskid
+                            task_data['host'] = host
+                            task_data['options'] = api.option_list(
+                                taskid).get('options')
+                            db.result.insert_one(task_data)
+
+                    # 将跑完的和没有成功启动的删除
                     result = api.task_delete(taskid)
                     if result.get('success'):
+                        db.tasks.remove({'taskid': taskid})
                         logging.info('Delete Task Id: {0}'.format(taskid))
 
 
@@ -212,6 +224,9 @@ def run():
         # 开始新任务
         options = get_options(url, data, headers)
         taskid = start_task(options)
+        # 插入任务记录
+        db.tasks.insert_one(
+            {'taskid': taskid, 'host': host, 'status': 'running'})
         logging.info('Create Task Success, Task Id: [{0}]'.format(taskid))
 
         options['headers'] = options['headers'].split('\r\n')
@@ -222,10 +237,43 @@ def run():
         time.sleep(SLEEP_TIME)
 
 
+def init():
+
+    for host in get_all_host():
+
+        host, port, admin_id = host
+        api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
+        admin_list = api.admin_list()
+        if admin_list:
+            tasks = admin_list.get('tasks')
+            for taskid in tasks:
+                result = api.task_delete(taskid)
+                if result.get('success'):
+                    logging.info('Delete Task Id: {0}'.format(taskid))
+
+    # 清空所有在线任务
+    db.tasks.remove()
+    logging.info('Initialize Success')
+
 if __name__ == '__main__':
 
+    from pymongo import MongoClient
+    from bson.objectid import ObjectId
+
+    # 数据库连接配置
+    DB_HOST = '172.16.13.135'
+    DB_PORT = 27017
+    DB_NAME = 'sqli'
+    DB_URL = 'mongodb://{}:{}'.format(DB_HOST, DB_PORT)
+
+    client = MongoClient(DB_URL)
+    db = client[DB_NAME]
+
+    # 配置日志格式
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(levelname)s %(message)s')
+
+    init()
 
     logging.info('[+] Host Number: {0}'.format(len(HOSTS)))
     logging.info(
@@ -235,7 +283,7 @@ if __name__ == '__main__':
     data = ''
     headers = {
         'User-Agent': '132',
-        'Cookie': 'a=1',
+        # 'Cookie': 'a=1',
         'X-Forwarded-For': '1.1.1.1',
         'Accept-Encoding': 'gzip, deflate, sdch',
     }
