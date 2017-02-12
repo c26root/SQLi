@@ -238,19 +238,7 @@ def run():
 
 
 def init():
-
-    # for host in get_all_host():
-
-    #     host, port, admin_id = host
-    #     api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
-    #     admin_list = api.admin_list()
-    #     if admin_list:
-    #         tasks = admin_list.get('tasks')
-    #         for taskid in tasks:
-    #             result = api.task_delete(taskid)
-    #             if result.get('success'):
-    #                 logging.info('Delete Task Id: {0}'.format(taskid))
-
+    
     # 清空所有在线任务
     db.tasks.remove()
     logging.info('Initialize Success')
