@@ -84,6 +84,8 @@ def url_pollution(url):
     return url
 
 # 污染 querystring
+
+
 def qs_pollution(qs):
     data = dict(Url.qs_parse(qs))
     data = Url.build_qs(data)
@@ -91,13 +93,7 @@ def qs_pollution(qs):
     return data
 
 
-# 生成选项
-def get_options(url, data, headers):
-
-    method = 'GET'
-    if data:
-        method = 'POST'
-
+def get_headers(headers):
     # 拷贝对象 防止追加星号
     headers = headers.copy()
 
@@ -106,13 +102,6 @@ def get_options(url, data, headers):
         if header in ('Referer', 'User-Agent', 'X-Forwarded-For', 'Client-IP', 'X-Real-IP'):
             headers[header] = headers.get(header) or HEADERS.get(header)
 
-    # 污染URL
-    url = url_pollution(url)
-
-    # 污染POST数据
-    if data and isinstance(data, basestring):
-        data = qs_pollution(data)
-
     # Cookie特殊处理 污染的默认头统一添加星号
     for k, v in headers.iteritems():
         if k == 'Cookie':
@@ -120,13 +109,29 @@ def get_options(url, data, headers):
         elif k in HEADERS.keys():
             headers[k] = v + '*'
 
-    # 转成HTTP头
+    return headers
+
+
+# 生成选项
+def get_options(url, data, headers):
+
+    method = 'GET'
+
+    # 污染URL
+    url = url_pollution(url)
+
+    # 污染POST数据
+    if data and isinstance(data, basestring):
+        method = 'POST'
+        data = qs_pollution(data)
+
+    # 使用自定义头部
+    headers = get_headers(headers)
     headers_str = '\r\n'.join(['{}: {}'.format(k, v)
                                for k, v in headers.iteritems()])
 
     options = {}
     options['url'] = url
-    # 使用自定义头部
     options['headers'] = headers_str
 
     # 不使用缓存记录
@@ -164,7 +169,7 @@ def check_host_status():
             logging.info(
                 '[{0}] Task Total Number: {1}'.format(host, len(tasks)))
             logging.info(
-                '[{0}] Tasks: {1}'.format(host, json.dumps(tasks, indent=2))) 
+                '[{0}] Tasks: {1}'.format(host, json.dumps(tasks, indent=2)))
             for taskid in tasks:
                 status = tasks.get(taskid)
 
@@ -205,8 +210,7 @@ def run():
                 continue
 
         # 开始新任务
-        url, data, cookie = url, data, headers
-        options = get_options(url, data, cookie)
+        options = get_options(url, data, headers)
         taskid = start_task(options)
         logging.info('Create Task Success, Task Id: [{0}]'.format(taskid))
 
@@ -224,7 +228,8 @@ if __name__ == '__main__':
                         format='%(asctime)s %(levelname)s %(message)s')
 
     logging.info('[+] Host Number: {0}'.format(len(HOSTS)))
-    logging.info('[+] Host List: {0}'.format(json.dumps([host.split(':')[0] for host in HOSTS], indent=2)))
+    logging.info(
+        '[+] Host List: {0}'.format(json.dumps([host.split(':')[0] for host in HOSTS], indent=2)))
 
     url = 'http://daza.im:82/api.php?username=a1'
     data = ''
