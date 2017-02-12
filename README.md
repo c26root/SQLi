@@ -22,7 +22,7 @@ default_admin_id = '182e2aab18e1e96a5e4d8be2411d56d3'
 
 ...
 ```
-### 在主机节点上启动sqlmapapi(使用eventlet.wsgi)
+### 在主机节点上启动sqlmapapi(使用Eventlet/Gevent/Tornaod作为WSGI Server)
 ```
 cd sqlmap
 python sqlmapapi.py -s -H 0.0.0.0 --adapter eventlet
