@@ -30,7 +30,7 @@ HEADERS = {
 SLEEP_TIME = 5
 
 # 单个节点最大任务数
-MAX_TASK_NUMBER = 5
+MAX_TASK_NUMBER = 8
 
 # 需要污染的头部
 POLLUTION_HEADERS = (

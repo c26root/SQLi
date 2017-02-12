@@ -10,13 +10,35 @@ vim config.py
 ```
 ```
 # API主机列表 格式 host:port:admin_id 如果不填写
-hosts = [
-    'localhost:8080',
-    '127.0.0.1:8775:2872af061add7b2fea33e5b1f9434338',
+HOSTS = [
+    # 'localhost:8775',
+    'daza.im:8775',
+    'hk.daza.im:8775',
+    'tokyo.daza.im:8775',
+    'tokyo2.daza.im:8775',
 ]
 
 # 默认管理id 建议修改sqlmap/lib/utils/api.py中admin_id为固定hash
-default_admin_id = '182e2aab18e1e96a5e4d8be2411d56d3'
+DEFAULT_ADMIN_ID = '182e2aab18e1e96a5e4d8be2411d56d3'
+
+# 超时时间
+TIMEOUT = 5
+
+USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+
+# 需要污染的头部
+HEADERS = {
+    'User-Agent': USER_AGENT,
+    'X-Forwarded-For': '8.8.8.8',
+    'Client-IP': '8.8.8.8',
+    'X-Real-IP': '8.8.8.8'
+}
+
+# 定期轮询时间
+SLEEP_TIME = 5
+
+# 单个节点最大任务数
+MAX_TASK_NUMBER = 8
 
 ...
 ```
