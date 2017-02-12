@@ -18,6 +18,7 @@ TIMEOUT = 5
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
 
+# 需要污染的头部
 HEADERS = {
     'User-Agent': USER_AGENT,
     'X-Forwarded-For': '8.8.8.8',
@@ -25,8 +26,10 @@ HEADERS = {
     'X-Real-IP': '8.8.8.8'
 }
 
+# 定期轮询时间
 SLEEP_TIME = 5
 
+# 单个节点最大任务数
 MAX_TASK_NUMBER = 5
 
 # 需要污染的头部
