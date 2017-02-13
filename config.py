@@ -37,7 +37,7 @@ MAX_TASK_NUMBER = 2
 # 数据库连接配置
 DB_HOST = '172.16.13.135'
 DB_PORT = 27017
-DB_NAME = 'sqli'
+DB_NAME = 'passive'
 DB_URL = 'mongodb://{0}:{1}'.format(DB_HOST, DB_PORT)
 
 
