@@ -205,13 +205,9 @@ def check_host_status():
                         logging.info('Delete Task Id: {0}'.format(taskid))
 
 
-def run(http):
+def run(url, data='', headers={}):
 
     global api
-
-    url = http.get('url')
-    data = http.get('data')
-    headers = http.get('headers', {})
 
     while 1:
         print '#' * (238 / 2)
@@ -266,15 +262,14 @@ if __name__ == '__main__':
     logging.info(
         '[+] Host List: {0}'.format(json.dumps([host.split(':')[0] for host in HOSTS], indent=2)))
 
-    http = {
-        'url': 'http://daza.im:82/api.php?username=a1',
-        'data': '',
-        'headers':  {
-            'User-Agent': '132',
-            # 'Cookie': 'a=1',
-            'X-Forwarded-For': '1.1.1.1',
-            'Accept-Encoding': 'gzip, deflate, sdch',
-        }
+    url = 'http://daza.im:82/api.php?username=a1'
+    data = ''
+    headers = {
+        'User-Agent': '132',
+        'Cookie': 'a=1',
+        'X-Forwarded-For': '1.1.1.1',
+        'Client-IP': '1.1.1.2',
+        'Accept-Encoding': 'gzip, deflate, sdch',
     }
 
-    run(http)
+    run(url, data, headers)
