@@ -6,12 +6,16 @@ import time
 import random
 import logging
 import Color
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 from config import HOSTS, TIMEOUT, HEADERS, SLEEP_TIME, MAX_TASK_NUMBER, DEFAULT_ADMIN_ID
 from config import DB_URL, DB_NAME
 
 from sqlmapapi import SQLMapApi
 from utils import Url
+
+
 
 
 try:
@@ -201,9 +205,13 @@ def check_host_status():
                         logging.info('Delete Task Id: {0}'.format(taskid))
 
 
-def run():
+def run(http):
 
-    global url, data, headers, api
+    global api
+
+    url = http.get('url')
+    data = http.get('data')
+    headers = http.get('headers', {})
 
     while 1:
         print '#' * (238 / 2)
@@ -245,9 +253,6 @@ def init():
 
 if __name__ == '__main__':
 
-    from pymongo import MongoClient
-    from bson.objectid import ObjectId
-
     client = MongoClient(DB_URL)
     db = client[DB_NAME]
 
@@ -261,13 +266,15 @@ if __name__ == '__main__':
     logging.info(
         '[+] Host List: {0}'.format(json.dumps([host.split(':')[0] for host in HOSTS], indent=2)))
 
-    url = 'http://daza.im:82/api.php?username=a1'
-    data = ''
-    headers = {
-        'User-Agent': '132',
-        # 'Cookie': 'a=1',
-        'X-Forwarded-For': '1.1.1.1',
-        'Accept-Encoding': 'gzip, deflate, sdch',
+    http = {
+        'url': 'http://daza.im:82/api.php?username=a1',
+        'data': '',
+        'headers':  {
+            'User-Agent': '132',
+            # 'Cookie': 'a=1',
+            'X-Forwarded-For': '1.1.1.1',
+            'Accept-Encoding': 'gzip, deflate, sdch',
+        }
     }
 
-    run()
+    run(http)
