@@ -203,7 +203,11 @@ def check_host_status():
                     if result.get('success'):
                         db.tasks.remove({'taskid': taskid})
                         logging.info('Delete Task Id: {0}'.format(taskid))
-
+                elif db.tasks.count({'taskid': taskid}) == 0:
+                    # 更新当前在跑得任务
+                    # print {'taskid': taskid, 'host': host, 'status': 'running'}
+                    db.tasks.insert_one(
+                        {'taskid': taskid, 'host': host, 'status': status})
 
 def run(url, data='', headers={}):
 
@@ -241,16 +245,21 @@ def run(url, data='', headers={}):
         time.sleep(SLEEP_TIME)
 
 
+def conn():
+    client = MongoClient(DB_URL)
+    db = client[DB_NAME]
+    return db
 def init():
-
-    # 清空所有在线任务
     db.tasks.remove()
     logging.info('Initialize Success')
 
+def free():
+    db.tasks.remove()
+    logging.info('UnInitialize Success')
+
 if __name__ == '__main__':
 
-    client = MongoClient(DB_URL)
-    db = client[DB_NAME]
+    db = conn()
 
     # 配置日志格式
     logging.basicConfig(level=logging.DEBUG,
@@ -271,5 +280,11 @@ if __name__ == '__main__':
         'Client-IP': '1.1.1.2',
         'Accept-Encoding': 'gzip, deflate, sdch',
     }
-
-    run(url, data, headers)
+    
+    try:
+        run(url, data, headers)
+    except KeyboardInterrupt as e:
+        free()
+    finally:
+        pass
+    

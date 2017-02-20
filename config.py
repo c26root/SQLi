@@ -8,7 +8,6 @@ HOSTS = [
     'daza.im:8775',
     'hk.daza.im:8775',
     'tokyo.daza.im:8775',
-    'tokyo2.daza.im:8775',
 ]
 
 # 默认管理id 建议修改sqlmap/lib/utils/api.py中admin_id为固定hash

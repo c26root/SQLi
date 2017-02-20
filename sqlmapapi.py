@@ -6,7 +6,7 @@ import logging
 import requests
 
 
-class SQLMapApi:
+class SQLMapApi(object):
 
     """SQLMAP API"""
 
