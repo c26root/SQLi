@@ -16,8 +16,6 @@ from sqlmapapi import SQLMapApi
 from utils import Url
 
 
-
-
 try:
     basestring
 except NameError:
@@ -205,9 +203,11 @@ def check_host_status():
                         logging.info('Delete Task Id: {0}'.format(taskid))
                 elif db.tasks.count({'taskid': taskid}) == 0:
                     # 更新当前在跑得任务
-                    # print {'taskid': taskid, 'host': host, 'status': 'running'}
+                    # print {'taskid': taskid, 'host': host, 'status':
+                    # 'running'}
                     db.tasks.insert_one(
                         {'taskid': taskid, 'host': host, 'status': status})
+
 
 def run(url, data='', headers={}):
 
@@ -249,9 +249,12 @@ def conn():
     client = MongoClient(DB_URL)
     db = client[DB_NAME]
     return db
+
+
 def init():
     db.tasks.remove()
     logging.info('Initialize Success')
+
 
 def free():
     db.tasks.remove()
@@ -280,11 +283,10 @@ if __name__ == '__main__':
         'Client-IP': '1.1.1.2',
         'Accept-Encoding': 'gzip, deflate, sdch',
     }
-    
+
     try:
         run(url, data, headers)
     except KeyboardInterrupt as e:
         free()
     finally:
         pass
-    
