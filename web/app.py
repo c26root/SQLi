@@ -54,6 +54,8 @@ def result():
     total_size = db.result.count()
     
     total_page = int(ceil(float(total_size) / show_size))
+    total_page = total_page if total_page else 1
+
     if page <= 0:
         return redirect((url_for('result')))
     elif page > total_page:
