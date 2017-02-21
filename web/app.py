@@ -32,9 +32,12 @@ def tasks():
     page = request.args.get('page', 1, type=int)
     total_size = db.tasks.count()
 
-    total_page = total_size / show_size + 1
-    if page <= 0 or page > total_page:
-        abort(404)
+    total_page = int(ceil(float(total_size) / show_size))
+    if page <= 0:
+        return redirect((url_for('tasks')))
+    elif page > total_page:
+        page = total_page
+        return redirect('{0}?page={1}'.format(url_for('tasks'), str(page)))
 
     docs = db.tasks.find().skip((page - 1) * show_size).limit(show_size)
     result = []
