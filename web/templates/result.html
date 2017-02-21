@@ -22,11 +22,12 @@
         <tr>
             <th>TaskID</th>
             <th>Host</th>
-            <th>Parameter</th>
             <th>Status</th>
             <th>Start_time</th>
             <th>End_time</th>
+            <th>Parameter</th>
             <th>Payload</th>
+            <th>Operate</th>
         </tr>
     </thead>
     <tbody>
@@ -34,13 +35,24 @@
         <tr>
             <td>{{ task.taskid }}</td>
             <td>{{ task.host }}</td>
-            <td>{{ task.parameter }}</td>
             <td>
               <span class="ui green label">success</span>
-              <td>{{ task.start_time }}</td>
-              <td>{{ task.end_time }}</td>
+            </td>
+            <td>{{ task.start_time }}</td>
+            <td>{{ task.end_time }}</td>
+            <td>{{ task.parameter }}</td>
             <td>
                 <code>{{ task.payload|safe|truncate(100) }}</code>
+            </td>
+            <td>
+              <div class="ui icon buttons">
+                <a href="javascript: void(0);" class="ui button">
+                  <i class="play icon"></i>
+                </a>
+                <a href="{{ url_for('result_del') }}?taskid={{ task.taskid }}" class="ui red button">
+                  <i class="trash icon"></i>
+                </a>
+              </div>
             </td>
         </tr>
         {% endfor %}
@@ -63,13 +75,14 @@
       <a href="{{ url_for('result') }}?page={{ page }}" class="item">{{ page }}</a>
     {% endif %}
   {% endfor %}
-
-  {% if current_page < total_page %}
+  
+  {% if current_page <= total_page - 1%}
   <a href="{{ url_for('result' )}}?page={{ current_page + 1}}" class="icon item">
     <i class="right arrow icon"></i>
   </a>
   {% endif %}
 </div>
+{{ current_page }} {{ total_page }}
 {% endif %}
 
 {% endblock %}

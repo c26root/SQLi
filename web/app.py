@@ -3,6 +3,7 @@
 
 import sys
 import json
+from math import ceil
 sys.path.append('../')
 from config import DB_URL, DB_NAME
 
@@ -20,6 +21,7 @@ db = client[DB_NAME]
 # 一页显示数量
 show_size = 15
 
+
 @app.route('/')
 def main():
     return redirect(url_for('tasks'))
@@ -33,6 +35,7 @@ def tasks():
     total_page = total_size / show_size + 1
     if page <= 0 or page > total_page:
         abort(404)
+
     docs = db.tasks.find().skip((page - 1) * show_size).limit(show_size)
     result = []
     for doc in docs:
@@ -46,10 +49,14 @@ def tasks():
 def result():
     page = request.args.get('page', 1, type=int)
     total_size = db.result.count()
+    
+    total_page = int(ceil(float(total_size) / show_size))
+    if page <= 0:
+        return redirect((url_for('result')))
+    elif page > total_page:
+        page = total_page
+        return redirect('{0}?page={1}'.format(url_for('result'), str(page)))
 
-    total_page = total_size / show_size + 1
-    if page <= 0 or page > total_page:
-        abort(404)
     docs = db.result.find().skip((page - 1) * show_size).limit(show_size)
     result = []
     for doc in docs:
@@ -80,9 +87,18 @@ def view(taskid):
     if not docs:
         abort(404)
     docs['_id'] = str(docs['_id'])
-    # del docs['options']
     return render_template('item.html', result=json.dumps(docs, indent=2))
-    # return jsonify(docs)
+
+
+@app.route('/result/del')
+def result_del():
+    taskid = request.args.get('taskid', '')
+    referer = request.headers.get('Referer')
+    if not taskid:
+        return abort(403)
+    db.result.remove({'taskid': taskid})
+    return redirect(referer) if referer else redirect(url_for('result'))
+    # return jsonify(code=200, msg='del success')
 
 
 @app.errorhandler(404)
@@ -93,20 +109,20 @@ def page_not_found(error):
     }), 404
 
 
+@app.errorhandler(403)
+def Forbidden(error):
+    return jsonify({
+        'code': 403,
+        'msg': 'Forbidden'
+    }), 403
+
+
 @app.errorhandler(500)
 def internal_server_error(error):
     return jsonify({
         'code': 500,
         'msg': 'Internal Server Error'
     }), 500
-
-
-@app.errorhandler(403)
-def unauthorized(error):
-    return jsonify({
-        'code': 403,
-        'msg': 'Forbidden'
-    }), 403
 
 
 # 检查是否合法ObjectId
