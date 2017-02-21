@@ -1,0 +1,37 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/semantic.min.css">
+    <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <script src="/static/semantic.min.js"></script>
+    <style type="text/css">
+    	body {
+    		margin-top: 50px;
+    	}
+    </style>
+</head>
+
+<body>
+    <div class="ui grid">
+      <!--   <div class="two wide column">
+            <div class="ui vertical pointing menu">
+                <a class="item">
+                    <i class="home icon"></i> 主页
+                </a>
+                <a class="item">
+                    <i class="mail icon"></i> 结果
+                </a>
+                <a class="item">
+                    <i class="user icon"></i> 配置
+                </a>
+            </div>
+        </div> -->
+        <div class="fourteen wide centered column">
+        {% block body %}{% endblock %}
+        </div>
+    </div>
+</body>
+
+</html>

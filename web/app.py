@@ -1,47 +1,88 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
+import sys
+import json
+sys.path.append('../')
+from config import DB_URL, DB_NAME
 
-from flask import Flask, jsonify, abort
+from flask import Flask, request, jsonify, abort, render_template, redirect, url_for
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
 app = Flask(__name__)
 
 
-# 数据库配置
-DB_HOST = '172.16.13.135'
-DB_PORT = 27017
-DB_NAME = 'sqli'
-DB_URL = 'mongodb://{}:{}'.format(DB_HOST, DB_PORT)
-
 # 连接MongoDB
 client = MongoClient(DB_URL)
 db = client[DB_NAME]
 
+# 一页显示数量
+show_size = 15
+
+@app.route('/')
+def main():
+    return redirect(url_for('tasks'))
+
 
 @app.route('/tasks')
-def main():
-    docs = db.tasks.find()
+def tasks():
+    page = request.args.get('page', 1, type=int)
+    total_size = db.tasks.count()
+
+    total_page = total_size / show_size + 1
+    if page <= 0 or page > total_page:
+        abort(404)
+    docs = db.tasks.find().skip((page - 1) * show_size).limit(show_size)
     result = []
     for doc in docs:
         doc['_id'] = str(doc['_id'])
         result.append(doc)
+    return render_template('index.html', title='Tasks', result=result, show_size=show_size, total=total_size, current_page=page, total_page=total_page)
     return jsonify(result=result)
 
 
-@app.route('/<taskid>')
+@app.route('/result')
+def result():
+    page = request.args.get('page', 1, type=int)
+    total_size = db.result.count()
+
+    total_page = total_size / show_size + 1
+    if page <= 0 or page > total_page:
+        abort(404)
+    docs = db.result.find().skip((page - 1) * show_size).limit(show_size)
+    result = []
+    for doc in docs:
+        doc['_id'] = str(doc['_id'])
+        data = doc['data']
+        payload = []
+        if len(data) == 1:
+            doc['parameter'] = data[0]['value'][0]['parameter']
+            for k, v in data[0]['value'][0]['data'].iteritems():
+                payload.append(v.get('payload'))
+        else:
+            doc['parameter'] = data[1]['value'][0]['parameter']
+            for k, v in data[1]['value'][0]['data'].iteritems():
+                doc['payload'] = v
+                payload.append(v.get('payload'))
+
+        doc['payload'] = json.dumps(payload)
+        doc['payload'] = payload[0]
+
+        result.append(doc)
+    return render_template('result.html', title='Result', result=result, show_size=show_size, total=total_size, current_page=page, total_page=total_page)
+
+
+@app.route('/result/<taskid>')
 def view(taskid):
 
-    if not is_valid_id(taskid):
-       abort(403)
-
-    docs = db.result.find_one({'_id': ObjectId(taskid)})
+    docs = db.result.find_one({'taskid': taskid})
     if not docs:
         abort(404)
-
     docs['_id'] = str(docs['_id'])
-    return jsonify(docs)
+    # del docs['options']
+    return render_template('item.html', result=json.dumps(docs, indent=2))
+    # return jsonify(docs)
 
 
 @app.errorhandler(404)

@@ -1,0 +1,75 @@
+{% extends 'base.html' %} {% block body %}
+
+<h3 class="ui right floated header">
+  <a href="{{ url_for('tasks') }}">
+    <div class="ui animated fade button">
+      <div class="visible content">
+        查看任务
+      </div>
+      <div class="hidden content">
+        <i class="right arrow icon"></i>
+      </div>
+    </div>
+  </a>
+</h3>
+
+<h1 class="ui left floated header">
+结果
+<div class="sub header">{{ total }}</div>
+</h1>
+<table class="ui table">
+    <thead>
+        <tr>
+            <th>TaskID</th>
+            <th>Host</th>
+            <th>Parameter</th>
+            <th>Status</th>
+            <th>Start_time</th>
+            <th>End_time</th>
+            <th>Payload</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in result %}
+        <tr>
+            <td>{{ task.taskid }}</td>
+            <td>{{ task.host }}</td>
+            <td>{{ task.parameter }}</td>
+            <td>
+              <span class="ui green label">success</span>
+              <td>{{ task.start_time }}</td>
+              <td>{{ task.end_time }}</td>
+            <td>
+                <code>{{ task.payload|safe|truncate(100) }}</code>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if result and total > show_size %}
+<div class="ui pagination menu">
+
+  {% if current_page > 1 %}
+  <a href="{{ url_for('result' )}}?page={{ current_page - 1}}" class="icon item">
+    <i class="left arrow icon"></i>
+  </a>
+  {% endif %}
+  
+  {% for page in range(1, total_page + 1) %}
+    {% if page == current_page %}
+      <a class="active item">{{ page }}</a>
+    {% else %}
+      <a href="{{ url_for('result') }}?page={{ page }}" class="item">{{ page }}</a>
+    {% endif %}
+  {% endfor %}
+
+  {% if current_page < total_page %}
+  <a href="{{ url_for('result' )}}?page={{ current_page + 1}}" class="icon item">
+    <i class="right arrow icon"></i>
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

@@ -192,6 +192,10 @@ def check_host_status():
                             # 保存注入结果和选项
                             task_data['taskid'] = taskid
                             task_data['host'] = host
+                            _task = db.tasks.find_one({'taskid': taskid})
+                            if _task:
+                                task_data['start_time'] = _task['time']
+                            task_data['end_time'] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                             task_data['options'] = api.option_list(
                                 taskid).get('options')
                             db.result.insert_one(task_data)
@@ -202,11 +206,13 @@ def check_host_status():
                         db.tasks.remove({'taskid': taskid})
                         logging.info('Delete Task Id: {0}'.format(taskid))
                 elif db.tasks.count({'taskid': taskid}) == 0:
-                    # 更新当前在跑得任务
-                    # print {'taskid': taskid, 'host': host, 'status':
-                    # 'running'}
-                    db.tasks.insert_one(
-                        {'taskid': taskid, 'host': host, 'status': status})
+                    # 恢复之前的任务
+                    db.tasks.insert_one({
+                        'taskid': taskid,
+                        'host': host,
+                        'status': status,
+                        'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                    })
 
 
 def run(url, data='', headers={}):
@@ -232,9 +238,15 @@ def run(url, data='', headers={}):
         # 开始新任务
         options = get_options(url, data, headers)
         taskid = start_task(options)
+        if not taskid:
+            continue
         # 插入任务记录
-        db.tasks.insert_one(
-            {'taskid': taskid, 'host': host, 'status': 'running'})
+        db.tasks.insert_one({
+            'taskid': taskid,
+            'host': host,
+            'status': 'running',
+            'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        })
         logging.info('Create Task Success, Task Id: [{0}]'.format(taskid))
 
         options['headers'] = options['headers'].split('\r\n')

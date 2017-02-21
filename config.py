@@ -30,7 +30,7 @@ HEADERS = {
 SLEEP_TIME = 5
 
 # 单个节点最大任务数
-MAX_TASK_NUMBER = 2
+MAX_TASK_NUMBER = 5
 
 
 # 数据库连接配置
