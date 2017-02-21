@@ -32,7 +32,11 @@ def tasks():
     page = request.args.get('page', 1, type=int)
     total_size = db.tasks.count()
 
+    # 获取页数
     total_page = int(ceil(float(total_size) / show_size))
+    # 初始化最少一页
+    total_page = total_page if total_page else 1
+    
     if page <= 0:
         return redirect((url_for('tasks')))
     elif page > total_page:
@@ -53,7 +57,9 @@ def result():
     page = request.args.get('page', 1, type=int)
     total_size = db.result.count()
     
+    # 获取页数
     total_page = int(ceil(float(total_size) / show_size))
+    # 初始化最少一页
     total_page = total_page if total_page else 1
 
     if page <= 0:
