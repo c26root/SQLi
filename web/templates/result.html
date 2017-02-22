@@ -20,27 +20,32 @@
         <tr>
             <th>TaskID</th>
             <th>Host</th>
-            <th>Status</th>
             <th>Start_time</th>
             <th>End_time</th>
             <th>Parameter</th>
             <th>Payload</th>
+            <th>Status</th>
             <th>Operate</th>
         </tr>
     </thead>
     <tbody>
+        {% if not result %}
+            <tr>
+                <td colspan="8"><h1 class="center aligned">无</h1></td>
+            </tr>
+        {% else %}
         {% for task in result %}
         <tr>
             <td>{{ task.taskid }}</td>
             <td><a href="{{ url_for('result') }}?host={{ task.host }}">{{ task.host }}</td>
-            <td>
-                <span class="ui green label">success</span>
-            </td>
             <td>{{ task.start_time }}</td>
             <td>{{ task.end_time }}</td>
             <td>{{ task.parameter }}</td>
             <td>
                 <code>{{ task.payload|safe|truncate(100) }}</code>
+            </td>
+            <td>
+                <span class="ui green label">success</span>
             </td>
             <td>
                 <div class="ui icon buttons">
@@ -54,6 +59,7 @@
             </td>
         </tr>
         {% endfor %}
+        {% endif %}
     </tbody>
 </table>
 

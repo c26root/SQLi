@@ -30,20 +30,28 @@ def main():
 @app.route('/tasks')
 def tasks():
     page = request.args.get('page', 1, type=int)
-    total_size = db.tasks.count()
+    host = request.args.get('host')
+    if host:
+        total_size = db.tasks.count({'host': host})
+    else:
+        total_size = db.tasks.count()
 
     # 获取页数
     total_page = int(ceil(float(total_size) / show_size))
     # 初始化最少一页
     total_page = total_page if total_page else 1
-    
+
     if page <= 0:
         return redirect((url_for('tasks')))
     elif page > total_page:
         page = total_page
         return redirect('{0}?page={1}'.format(url_for('tasks'), str(page)))
+    if host:
+        docs = db.tasks.find({'host': host}).skip(
+            (page - 1) * show_size).limit(show_size)
+    else:
+        docs = db.tasks.find().skip((page - 1) * show_size).limit(show_size)
 
-    docs = db.tasks.find().skip((page - 1) * show_size).limit(show_size)
     result = []
     for doc in docs:
         doc['_id'] = str(doc['_id'])
@@ -71,7 +79,8 @@ def result():
         page = total_page
         return redirect('{0}?page={1}'.format(url_for('result'), str(page)))
     if host:
-        docs = db.result.find({'host': host}).skip((page - 1) * show_size).limit(show_size)
+        docs = db.result.find({'host': host}).skip(
+            (page - 1) * show_size).limit(show_size)
     else:
         docs = db.result.find().skip((page - 1) * show_size).limit(show_size)
 

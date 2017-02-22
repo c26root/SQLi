@@ -25,21 +25,28 @@
         </tr>
     </thead>
     <tbody>
+        {% if not result %}
+            <tr>
+                <td colspan="8"><h1 class="center aligned">无</h1></td>
+            </tr>
+        {% else %}
         {% for task in result %}
         <tr>
             <td>{{ task.taskid }}</td>
-            <td>{{ task.host }}</td>
+            <td><a href="{{ url_for('tasks') }}?host={{ task.host }}">{{ task.host }}</td>
             <td>{{ task.time }}</td>
             <td>
                 <span class="ui blue label">running</span>
         </tr>
         {% endfor %}
+        {% endif %}
     </tbody>
 </table>
+
 {% if result and total > show_size %}
 <div class="ui pagination menu">
     {% if current_page > 1 %}
-    <a href="{{ url_for('tasks' )}}?page={{ current_page - 1}}" class="icon item">
+    <a href="{{ url_for('tasks' )}}?page={{ current_page - 1}}{% if host %}&host={{ host }}{% endif %}" class="icon item">
         <i class="left arrow icon"></i>
     </a>
     {% endif %}
@@ -48,15 +55,16 @@
     {% if page == current_page %}
     <a class="active item">{{ page }}</a>
     {% else %}
-    <a href="{{ url_for('tasks') }}?page={{ page }}" class="item">{{ page }}</a>
+    <a href="{{ url_for('tasks') }}?page={{ page }}{% if host %}&host={{ host }}{% endif %}" class="item">{{ page }}</a>
     {% endif %} 
     {% endfor%}
-
+    
     {% if current_page <= total_page - 1%}
-    <a href="{{ url_for('tasks' )}}?page={{ current_page + 1}}" class="icon item">
+    <a href="{{ url_for('tasks' )}}?page={{ current_page + 1}}{% if host %}&host={{ host }}{% endif %}" class="icon item">
         <i class="right arrow icon"></i>
         </a>
     {% endif %}
 </div>
 {% endif %}
+
 {% endblock %}
