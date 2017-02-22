@@ -1,5 +1,4 @@
 {% extends 'base.html' %} {% block body %}
-
 <h3 class="ui right floated header">
   <a href="{{ url_for('result') }}">
     <div class="ui animated fade button">
@@ -12,7 +11,6 @@
     </div>
   </a>
 </h3>
-
 <h1 class="ui left floated header">
 任务
 <div class="sub header">{{ total }}</div>
@@ -38,30 +36,27 @@
         {% endfor %}
     </tbody>
 </table>
-
 {% if result and total > show_size %}
 <div class="ui pagination menu">
-
-  {% if current_page > 1 %}
-  <a href="{{ url_for('tasks' )}}?page={{ current_page - 1}}" class="icon item">
-    <i class="left arrow icon"></i>
-  </a>
-  {% endif %}
-  
-  {% for page in range(1, total_page + 1) %}
-    {% if page == current_page %}
-      <a class="active item">{{ page }}</a>
-    {% else %}
-      <a href="{{ url_for('tasks') }}?page={{ page }}" class="item">{{ page }}</a>
+    {% if current_page > 1 %}
+    <a href="{{ url_for('tasks' )}}?page={{ current_page - 1}}" class="icon item">
+        <i class="left arrow icon"></i>
+    </a>
     {% endif %}
-  {% endfor %}
 
-  {% if current_page < total_page %}
-  <a href="{{ url_for('tasks' )}}?page={{ current_page + 1}}" class="icon item">
-    <i class="right arrow icon"></i>
-  </a>
-  {% endif %}
+    {% for page in range(1, total_page + 1) %}
+    {% if page == current_page %}
+    <a class="active item">{{ page }}</a>
+    {% else %}
+    <a href="{{ url_for('tasks') }}?page={{ page }}" class="item">{{ page }}</a>
+    {% endif %} 
+    {% endfor%}
+
+    {% if current_page <= total_page - 1%}
+    <a href="{{ url_for('tasks' )}}?page={{ current_page + 1}}" class="icon item">
+        <i class="right arrow icon"></i>
+        </a>
+    {% endif %}
 </div>
 {% endif %}
-
 {% endblock %}

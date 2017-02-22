@@ -186,16 +186,20 @@ def check_host_status():
 
                             logging.critical(
                                 'Found Inject Task Id: {0}'.format(taskid))
-                            # logging.critical(
-                            # 'Found Inject Task Id: {0}'.format(json.dumps(task_data.get('data'), indent=2)))
 
                             # 保存注入结果和选项
                             task_data['taskid'] = taskid
                             task_data['host'] = host
                             _task = db.tasks.find_one({'taskid': taskid})
+
                             if _task:
                                 task_data['start_time'] = _task['time']
-                            task_data['end_time'] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                            else:
+                                task_data['start_time'] = time.strftime(
+                                    "%Y-%m-%d %H:%M:%S", time.localtime())
+
+                            task_data['end_time'] = time.strftime(
+                                "%Y-%m-%d %H:%M:%S", time.localtime())
                             task_data['options'] = api.option_list(
                                 taskid).get('options')
                             db.result.insert_one(task_data)

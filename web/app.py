@@ -19,7 +19,7 @@ client = MongoClient(DB_URL)
 db = client[DB_NAME]
 
 # 一页显示数量
-show_size = 15
+show_size = 10
 
 
 @app.route('/')
@@ -55,8 +55,11 @@ def tasks():
 @app.route('/result')
 def result():
     page = request.args.get('page', 1, type=int)
-    total_size = db.result.count()
-    
+    host = request.args.get('host')
+    if host:
+        total_size = db.result.count({'host': host})
+    else:
+        total_size = db.result.count()
     # 获取页数
     total_page = int(ceil(float(total_size) / show_size))
     # 初始化最少一页
@@ -67,8 +70,11 @@ def result():
     elif page > total_page:
         page = total_page
         return redirect('{0}?page={1}'.format(url_for('result'), str(page)))
+    if host:
+        docs = db.result.find({'host': host}).skip((page - 1) * show_size).limit(show_size)
+    else:
+        docs = db.result.find().skip((page - 1) * show_size).limit(show_size)
 
-    docs = db.result.find().skip((page - 1) * show_size).limit(show_size)
     result = []
     for doc in docs:
         doc['_id'] = str(doc['_id'])
@@ -88,7 +94,7 @@ def result():
         doc['payload'] = payload[0]
 
         result.append(doc)
-    return render_template('result.html', title='Result', result=result, show_size=show_size, total=total_size, current_page=page, total_page=total_page)
+    return render_template('result.html', title='Result', result=result, show_size=show_size, total=total_size, current_page=page, total_page=total_page, host=host)
 
 
 @app.route('/result/<taskid>')
@@ -98,7 +104,9 @@ def view(taskid):
     if not docs:
         abort(404)
     docs['_id'] = str(docs['_id'])
-    return render_template('item.html', result=json.dumps(docs, indent=2))
+    del docs['options']
+    # return render_template('item.html', result=json.dumps(docs, indent=2))
+    return jsonify(docs)
 
 
 @app.route('/result/del')

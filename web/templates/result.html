@@ -1,5 +1,4 @@
 {% extends 'base.html' %} {% block body %}
-
 <h3 class="ui right floated header">
   <a href="{{ url_for('tasks') }}">
     <div class="ui animated fade button">
@@ -12,7 +11,6 @@
     </div>
   </a>
 </h3>
-
 <h1 class="ui left floated header">
 结果
 <div class="sub header">{{ total }}</div>
@@ -34,9 +32,9 @@
         {% for task in result %}
         <tr>
             <td>{{ task.taskid }}</td>
-            <td>{{ task.host }}</td>
+            <td><a href="{{ url_for('result') }}?host={{ task.host }}">{{ task.host }}</td>
             <td>
-              <span class="ui green label">success</span>
+                <span class="ui green label">success</span>
             </td>
             <td>{{ task.start_time }}</td>
             <td>{{ task.end_time }}</td>
@@ -45,43 +43,81 @@
                 <code>{{ task.payload|safe|truncate(100) }}</code>
             </td>
             <td>
-              <div class="ui icon buttons">
-                <a href="javascript: void(0);" class="ui button">
-                  <i class="play icon"></i>
-                </a>
-                <a href="{{ url_for('result_del') }}?taskid={{ task.taskid }}" class="ui red button">
-                  <i class="trash icon"></i>
-                </a>
-              </div>
+                <div class="ui icon buttons">
+                    <a href="javascript: void(0);" data-id="{{ task.taskid }}" class="ui teal button">
+                        <i class="rocket icon"></i>
+                    </a>
+                    <a href="{{ url_for('result_del') }}?taskid={{ task.taskid }}" class="ui red button">
+                        <i class="trash icon"></i>
+                    </a>
+                </div>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
+<div class="ui modal">
+  <i class="close icon"></i>
+  <div class="header" id="taskid">
+   
+  </div>
+  <div class="content">
+    <div class="image">
+     <!-- 图像可以显示在左或图标 -->
+    </div>
+    <div class="description">
+        <pre id="task">
+            
+        </pre>
+    </div>
+  </div>
+</div>
+
 {% if result and total > show_size %}
 <div class="ui pagination menu">
-
-  {% if current_page > 1 %}
-  <a href="{{ url_for('result' )}}?page={{ current_page - 1}}" class="icon item">
-    <i class="left arrow icon"></i>
-  </a>
-  {% endif %}
-  
-  {% for page in range(1, total_page + 1) %}
-    {% if page == current_page %}
-      <a class="active item">{{ page }}</a>
-    {% else %}
-      <a href="{{ url_for('result') }}?page={{ page }}" class="item">{{ page }}</a>
+    {% if current_page > 1 %}
+    <a href="{{ url_for('result' )}}?page={{ current_page - 1}}{% if host %}&host={{ host }}{% endif %}" class="icon item">
+        <i class="left arrow icon"></i>
+    </a>
     {% endif %}
-  {% endfor %}
-  
-  {% if current_page <= total_page - 1%}
-  <a href="{{ url_for('result' )}}?page={{ current_page + 1}}" class="icon item">
-    <i class="right arrow icon"></i>
-  </a>
-  {% endif %}
+
+    {% for page in range(1, total_page + 1) %}
+    {% if page == current_page %}
+    <a class="active item">{{ page }}</a>
+    {% else %}
+    <a href="{{ url_for('result') }}?page={{ page }}{% if host %}&host={{ host }}{% endif %}" class="item">{{ page }}</a>
+    {% endif %} 
+    {% endfor%}
+    
+    {% if current_page <= total_page - 1%}
+    <a href="{{ url_for('result' )}}?page={{ current_page + 1}}{% if host %}&host={{ host }}{% endif %}" class="icon item">
+        <i class="right arrow icon"></i>
+        </a>
+    {% endif %}
 </div>
 {% endif %}
 
+<script>
+
+    $(".ui.teal.button").click(function() {
+        
+        var id = $(this).data('id');
+        
+        $.ajax({
+            url: '/result/' + id,
+            success: function(response) {
+                $("#taskid").html(id)
+                $("#task").html(JSON.stringify(response, null, 2))
+                $('.ui .modal').modal('show');
+            }
+        })
+
+        
+    })
+    
+</script>
+
 {% endblock %}
+
+
