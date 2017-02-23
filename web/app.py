@@ -5,7 +5,7 @@ import sys
 import json
 from math import ceil
 sys.path.append('../')
-from config import DB_URL, DB_NAME
+from config import DB_URL, DB_NAME, HOSTS
 
 from flask import Flask, request, jsonify, abort, render_template, redirect, url_for
 from pymongo import MongoClient
@@ -26,6 +26,23 @@ show_size = 10
 def main():
     return redirect(url_for('tasks'))
 
+
+@app.route('/host')
+def host():
+    return json.dumps(HOSTS, indent=2)
+
+
+@app.route('/host/stat')
+def host_stat():
+    ret = []
+    for host in HOSTS:
+        _host = host.split(':')[0]
+        count = db.tasks.count({'host': _host})
+        ret.append({
+            'host': host,
+            'task_number': count
+        })
+    return json.dumps(ret, indent=2)
 
 @app.route('/tasks')
 def tasks():

@@ -12,8 +12,13 @@
   </a>
 </h3>
 <h1 class="ui left floated header">
-任务
-<div class="sub header">{{ total }}</div>
+  <i class="tasks icon"></i>
+  <div class="content">
+    任务
+    <div class="sub header">
+      <div class="sub header">{{ total }}</div>
+    </div>
+  </div>
 </h1>
 <table class="ui table">
     <thead>
@@ -66,5 +71,28 @@
     {% endif %}
 </div>
 {% endif %}
+
+<script>
+
+    var getHostStat = function() {
+        $("#loading").show();
+        $.ajax({
+            url: '/host/stat',
+            dataType: 'json',
+            success: function(response) {
+                var html = '';
+                $.each(response, function(_, e) {
+                    html += '<div class="ui label">' + e['host'] + '<div class="detail">' + e['task_number'] + '</div></div>'
+                })
+                $("#host_stat").html(html);
+                $("#loading").hide();
+            }
+        })
+    }
+
+    // getHostStat();
+    // setInterval('getHostStat()', '2000')
+
+</script>
 
 {% endblock %}

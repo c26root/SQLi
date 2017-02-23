@@ -12,8 +12,13 @@
   </a>
 </h3>
 <h1 class="ui left floated header">
-结果
-<div class="sub header">{{ total }}</div>
+  <i class="browser icon"></i>
+  <div class="content">
+    结果
+    <div class="sub header">
+      <div class="sub header">{{ total }}</div>
+    </div>
+  </div>
 </h1>
 <table class="ui table">
     <thead>
@@ -107,19 +112,15 @@
 <script>
 
     $(".ui.teal.button").click(function() {
-        
         var id = $(this).data('id');
-        
         $.ajax({
             url: '/result/' + id,
             success: function(response) {
-                $("#taskid").html(id)
-                $("#task").html(JSON.stringify(response, null, 2))
+                $("#taskid").html(id);
+                $("#task").html(JSON.stringify(response, null, 2));
                 $('.ui .modal').modal('show');
             }
         })
-
-        
     })
     
 </script>
