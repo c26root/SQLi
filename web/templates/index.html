@@ -23,16 +23,16 @@
 <table class="ui table">
     <thead>
         <tr>
-            <th>TaskID</th>
-            <th>Host</th>
-            <th>Time</th>
-            <th>Status</th>
+          <th>TaskID</th>
+          <th>Host</th>
+          <th>Time</th>
+          <th>Status</th>
         </tr>
     </thead>
     <tbody>
         {% if not result %}
             <tr>
-                <td colspan="8"><h1 class="center aligned">无</h1></td>
+              <td colspan="8"><h1 class="center aligned">无</h1></td>
             </tr>
         {% else %}
         {% for task in result %}
@@ -41,7 +41,7 @@
             <td><a href="{{ url_for('tasks') }}?host={{ task.host }}">{{ task.host }}</td>
             <td>{{ task.time }}</td>
             <td>
-                <span class="ui blue label">running</span>
+              <span class="ui blue label">running</span>
         </tr>
         {% endfor %}
         {% endif %}

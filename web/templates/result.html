@@ -22,25 +22,37 @@
 </h1>
 <table class="ui table">
     <thead>
-        <tr>
-            <th>TaskID</th>
-            <th>Host</th>
-            <th>Start_time</th>
-            <th>End_time</th>
-            <th>Parameter</th>
-            <th>Payload</th>
-            <th>Status</th>
-            <th>Operate</th>
-        </tr>
+      <tr>
+        <th>
+          <div class="ui checkbox">
+            <input type="checkbox" id="selectAll">
+            <label></label>
+          </div>
+        </th>
+        <th>TaskID</th>
+        <th>Host</th>
+        <th>Start_time</th>
+        <th>End_time</th>
+        <th>Parameter</th>
+        <th>Payload</th>
+        <th>Status</th>
+        <th>Operate</th>
+      </tr>
     </thead>
     <tbody>
         {% if not result %}
             <tr>
-                <td colspan="8"><h1 class="center aligned">无</h1></td>
+              <td colspan="8"><h1 class="center aligned">无</h1></td>
             </tr>
         {% else %}
         {% for task in result %}
         <tr>
+            <td>
+              <div class="ui checkbox">
+                <input type="checkbox" data-id={{ task.taskid }}>
+                <label></label>
+              </div>
+            </td>
             <td>{{ task.taskid }}</td>
             <td><a href="{{ url_for('result') }}?host={{ task.host }}">{{ task.host }}</td>
             <td>{{ task.start_time }}</td>
@@ -66,6 +78,24 @@
         {% endfor %}
         {% endif %}
     </tbody>
+    <tfoot class="full-width">
+        <tr>
+          <th></th>
+          <th colspan="8">
+<!--             <div class="ui right floated small primary labeled icon button">
+              <i class="user icon"></i> 添加用户
+            </div> -->
+            <a href="javascript: void(0);" id="delBtn">
+              <div class="ui small red button">
+                  删除
+              </div>
+            </a>
+            <div class="ui small disabled button">
+              删除所有
+            </div>
+          </th>
+        </tr>
+      </tfoot>
 </table>
 
 <div class="ui modal">
@@ -121,6 +151,28 @@
                 $('.ui .modal').modal('show');
             }
         })
+    })
+
+    $("#delBtn").click(function() {
+        var checkboxs = $("input[type='checkbox']:checked");
+        var _ids = [];
+        $.each(checkboxs, function(i, e) {
+            _ids.push($(this).data('id'));
+        })
+        if (_ids.length) {
+            location.href="/result/del?taskid=" + _ids.join(',')
+        }
+    })
+
+    $("#selectAll").click(function() {
+        var stat = $(this).is(':checked');
+        if (stat) {
+            $("input[type='checkbox']").prop('checked',true);
+        } else {
+            $("input[type='checkbox']").prop('checked',false);
+            
+
+        }
     })
     
 </script>

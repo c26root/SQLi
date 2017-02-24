@@ -139,9 +139,17 @@ def view(taskid):
 def result_del():
     taskid = request.args.get('taskid', '')
     referer = request.headers.get('Referer')
+
     if not taskid:
         return abort(403)
-    db.result.remove({'taskid': taskid})
+        
+    if ',' in taskid:
+        _ids = taskid.split(',')
+        for i in _ids:
+            db.result.remove({'taskid': i})
+    else:
+        db.result.remove({'taskid': taskid})
+    
     return redirect(referer) if referer else redirect(url_for('result'))
     # return jsonify(code=200, msg='del success')
 
