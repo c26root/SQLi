@@ -44,6 +44,7 @@ def host_stat():
         })
     return json.dumps(ret, indent=2)
 
+
 @app.route('/tasks')
 def tasks():
     page = request.args.get('page', 1, type=int)
@@ -142,16 +143,15 @@ def result_del():
 
     if not taskid:
         return abort(403)
-        
-    if ',' in taskid:
-        _ids = taskid.split(',')
+
+    if '.' in taskid:
+        _ids = taskid.split('.')
         for i in _ids:
             db.result.remove({'taskid': i})
     else:
         db.result.remove({'taskid': taskid})
-    
+
     return redirect(referer) if referer else redirect(url_for('result'))
-    # return jsonify(code=200, msg='del success')
 
 
 @app.errorhandler(404)
