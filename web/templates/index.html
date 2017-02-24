@@ -22,12 +22,13 @@
 </h1>
 <table class="ui table">
     <thead>
-        <tr>
-          <th>TaskID</th>
-          <th>Host</th>
-          <th>Time</th>
-          <th>Status</th>
-        </tr>
+      <tr>
+        <th>TaskID</th>
+        <th>Host</th>
+        <th>Url</th>
+        <th>Time</th>
+        <th>Status</th>
+      </tr>
     </thead>
     <tbody>
         {% if not result %}
@@ -39,6 +40,7 @@
         <tr>
             <td>{{ task.taskid }}</td>
             <td><a href="{{ url_for('tasks') }}?host={{ task.host }}">{{ task.host }}</td>
+            <td>{{ task.origin_url }}</td>
             <td>{{ task.time }}</td>
             <td>
               <span class="ui blue label">running</span>

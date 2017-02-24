@@ -249,7 +249,12 @@ def run(url, data='', headers={}):
             'taskid': taskid,
             'host': host,
             'status': 'running',
-            'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+            'url': options['url'], 
+            'data': options.get('data', ''),
+            'headers': options['headers'].split('\r\n'),
+            'origin_url': url, 
+            'origin_data': data, 
         })
         logging.info('Create Task Success, Task Id: [{0}]'.format(taskid))
 

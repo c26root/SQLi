@@ -23,18 +23,13 @@
 <table class="ui table">
     <thead>
       <tr>
-        <th>
-          <div class="ui checkbox">
-            <input type="checkbox" id="selectAll">
-            <label></label>
-          </div>
-        </th>
+        <th></th>
         <th>TaskID</th>
         <th>Host</th>
         <th>Start_time</th>
         <th>End_time</th>
         <th>Parameter</th>
-        <th>Payload</th>
+        <!-- <th>Payload</th> -->
         <th>Status</th>
         <th>Operate</th>
       </tr>
@@ -58,9 +53,9 @@
             <td>{{ task.start_time }}</td>
             <td>{{ task.end_time }}</td>
             <td>{{ task.parameter }}</td>
-            <td>
+<!--             <td>
                 <code>{{ task.payload|safe|truncate(100) }}</code>
-            </td>
+            </td> -->
             <td>
                 <span class="ui green label">success</span>
             </td>
@@ -79,7 +74,12 @@
     </tbody>
     <tfoot class="full-width">
         <tr>
-          <th></th>
+          <th>
+            <div class="ui checkbox">
+              <input type="checkbox" id="selectAll">
+              <label></label>
+            </div>
+          </th>
           <th colspan="8">
 <!--             <div class="ui right floated small primary labeled icon button">
               <i class="user icon"></i> 添加用户

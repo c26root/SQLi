@@ -132,7 +132,6 @@ def view(taskid):
         abort(404)
     docs['_id'] = str(docs['_id'])
     del docs['options']
-    # return render_template('item.html', result=json.dumps(docs, indent=2))
     return jsonify(docs)
 
 
