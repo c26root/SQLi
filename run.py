@@ -96,6 +96,8 @@ def qs_pollution(qs):
 
 
 def get_headers(headers):
+
+    global url
     # 拷贝对象 防止追加星号
     headers = headers.copy()
 
@@ -108,6 +110,12 @@ def get_headers(headers):
     for k, v in headers.iteritems():
         if k == 'Cookie':
             headers[k] = v.replace(';', '*;') + '*'
+        elif k == 'Referer':
+            if v == '':
+                parse = Url.url_parse(url)
+                headers[k] = '{0}://{1}/'.format(parse.scheme, parse.netloc)  + '*'
+            else:
+                headers[k] = v + '*'
         elif k in HEADERS.keys():
             headers[k] = v + '*'
 

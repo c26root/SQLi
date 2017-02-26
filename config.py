@@ -20,6 +20,7 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, lik
 
 # 需要污染的头部
 HEADERS = {
+	'Referer': '',
     'User-Agent': USER_AGENT,
     'X-Forwarded-For': '8.8.8.8',
     'Client-IP': '8.8.8.8',
