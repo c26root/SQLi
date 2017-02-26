@@ -326,7 +326,7 @@ if __name__ == '__main__':
     logging.info(
         '[+] Host List: {0}'.format(json.dumps([host.split(':')[0] for host in HOSTS], indent=2)))
 
-    url = 'http://daza.im:82/api.php?username=a1'
+    url = 'http://daza.im:82/api.php?u=2&a=3&c=3&username=a1'
     data = ''
     headers = {
         'User-Agent': '132',
