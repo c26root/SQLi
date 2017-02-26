@@ -97,7 +97,6 @@ def qs_pollution(qs):
 
 def get_headers(headers):
 
-    global url
     # 拷贝对象 防止追加星号
     headers = headers.copy()
 
@@ -106,14 +105,17 @@ def get_headers(headers):
         if header in ('Referer', 'User-Agent', 'X-Forwarded-For', 'Client-IP', 'X-Real-IP'):
             headers[header] = headers.get(header) or HEADERS.get(header)
 
-    # Cookie特殊处理 污染的默认头统一添加星号
+    # Cookie Referer特殊处理 污染的默认头统一添加星号
     for k, v in headers.iteritems():
         if k == 'Cookie':
             headers[k] = v.replace(';', '*;') + '*'
+
+        # 如果没有Referer则修改为当前的url根目录
         elif k == 'Referer':
             if v == '':
                 parse = Url.url_parse(url)
-                headers[k] = '{0}://{1}/'.format(parse.scheme, parse.netloc)  + '*'
+                headers[
+                    k] = '{0}://{1}/'.format(parse.scheme, parse.netloc) + '*'
             else:
                 headers[k] = v + '*'
         elif k in HEADERS.keys():
@@ -258,11 +260,11 @@ def run(url, data='', headers={}):
             'host': host,
             'status': 'running',
             'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-            'url': options['url'], 
+            'url': options['url'],
             'data': options.get('data', ''),
             'headers': options['headers'].split('\r\n'),
-            'origin_url': url, 
-            'origin_data': data, 
+            'origin_url': url,
+            'origin_data': data,
         })
         logging.info('Create Task Success, Task Id: [{0}]'.format(taskid))
 
