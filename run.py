@@ -21,18 +21,18 @@ try:
 except NameError:
     basestring = string
 
+# 解析主机信息
 
-# 随机选择一个节点
-def get_host():
-    # 初始化
+
+def parse_host(host_info):
+    # 初始化默认参数
     host, port, admin_id = '127.0.0.1', 8775, DEFAULT_ADMIN_ID
-    host = random.choice(HOSTS)
-    pairs = host.split(':')
+    pairs = host_info.split(':')
 
     if len(pairs) == 2:
         host = pairs[0]
         port = int(pairs[1])
-        admin_i = admin_id
+        admin_id = admin_id
     elif len(pairs) == 3:
         host = pairs[0]
         port = int(pairs[1])
@@ -43,26 +43,28 @@ def get_host():
 
     return host, port, admin_id
 
+# 随机选择一个节点
+
+
+def get_random_host():
+    host = random.choice(HOSTS)
+    return parse_host(host)
+
 
 def get_all_host():
     ret = []
-    for i in HOSTS:
-        host, port, admin_id = '127.0.0.1', 8775, DEFAULT_ADMIN_ID
-        pairs = i.split(':')
-
-        if len(pairs) == 2:
-            host = pairs[0]
-            port = int(pairs[1])
-            admin_i = admin_id
-        elif len(pairs) == 3:
-            host = pairs[0]
-            port = int(pairs[1])
-            admin_id = pairs[2] or admin_id
-        else:
-            print '主机端口格式错误'
-            return False
+    for host_info in HOSTS:
+        host, port, admin_id = parse_host(host_info)
         ret.append((host, port, admin_id))
     return ret
+
+
+# 获取任务空闲节点
+def get_good_host_by_status(host_status):
+    host_name = min(host_status.iteritems(), key=lambda x: x[1])[0]
+    for _host in hosts:
+        if host_name == _host[0]:
+            return _host
 
 
 # 污染URL
@@ -170,9 +172,11 @@ def start_task(options):
 
 
 # 遍历所有节点检查任务状态
-def check_host_status():
+def check_host_status(hosts):
 
-    for host in get_all_host():
+    host_status = {}
+
+    for host in hosts:
 
         host, port, admin_id = host
         api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
@@ -180,10 +184,14 @@ def check_host_status():
 
         if admin_list:
             tasks = admin_list.get('tasks')
+            # 记录节点的当前任务数 方便下次任务选择节点
+            host_status[host] = len(tasks)
+
             logging.info(
                 '[{0}] Task Total Number: {1}'.format(host, len(tasks)))
             logging.info(
                 '[{0}] Tasks: {1}'.format(host, json.dumps(tasks, indent=2)))
+
             for taskid in tasks:
                 status = tasks.get(taskid)
 
@@ -195,7 +203,7 @@ def check_host_status():
                         if task_data.get('data'):
 
                             logging.critical(
-                                'Found Inject Task Id: {0}'.format(taskid))
+                                'Found Inject in [{0}] Task Id: {1}'.format(host, taskid))
 
                             # 保存注入结果和选项
                             task_data['taskid'] = taskid
@@ -214,11 +222,13 @@ def check_host_status():
                                 taskid).get('options')
                             db.result.insert_one(task_data)
 
-                    # 将跑完的和没有成功启动的删除
+                    # 将跑完的和没有成功启动的删除 计算最新节点任务数量
                     result = api.task_delete(taskid)
                     if result.get('success'):
                         db.tasks.remove({'taskid': taskid})
                         logging.info('Delete Task Id: {0}'.format(taskid))
+                        host_status[host] -= 1
+
                 elif db.tasks.count({'taskid': taskid}) == 0:
                     # 恢复之前的任务
                     db.tasks.insert_one({
@@ -228,18 +238,25 @@ def check_host_status():
                         'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                     })
 
+    return host_status
+
+# 获取优先节点
+
 
 def run(url, data='', headers={}):
 
-    global api
+    global api, hosts
 
     while 1:
         print '#' * (238 / 2)
-        check_host_status()
+        host_status = check_host_status(hosts)
+        logging.info('Current Host Status: {0}'.format(
+            json.dumps(host_status, indent=2)))
         print '#' * (238 / 2)
 
         # 获取存在空闲的主机
-        host, port, admin_id = get_host()
+        host, port, admin_id = get_good_host_by_status(host_status)
+
         api = SQLMapApi(host, port, admin_id=admin_id, timeout=TIMEOUT)
         admin_list = api.admin_list()
         if admin_list:
@@ -249,12 +266,13 @@ def run(url, data='', headers={}):
                 time.sleep(3)
                 continue
 
-        # 开始新任务
+        # 获取参数开始任务
         options = get_options(url, data, headers)
         taskid = start_task(options)
         if not taskid:
             continue
-        # 插入任务记录
+
+        # 记录任务
         db.tasks.insert_one({
             'taskid': taskid,
             'host': host,
@@ -266,6 +284,7 @@ def run(url, data='', headers={}):
             'origin_url': url,
             'origin_data': data,
         })
+
         logging.info('Create Task Success, Task Id: [{0}]'.format(taskid))
 
         options['headers'] = options['headers'].split('\r\n')
@@ -300,6 +319,8 @@ if __name__ == '__main__':
                         format='%(asctime)s %(levelname)s %(message)s')
 
     init()
+
+    hosts = get_all_host()
 
     logging.info('[+] Host Number: {0}'.format(len(HOSTS)))
     logging.info(
