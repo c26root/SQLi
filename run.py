@@ -4,12 +4,13 @@
 import json
 import time
 import random
+import Cookie
 import logging
 import Color
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
-from config import HOSTS, TIMEOUT, HEADERS, SLEEP_TIME, MAX_TASK_NUMBER, DEFAULT_ADMIN_ID
+from config import HOSTS, TIMEOUT, HEADERS, HEADERS_KEY,  SLEEP_TIME, MAX_TASK_NUMBER, DEFAULT_ADMIN_ID
 from config import DB_URL, DB_NAME
 
 from sqlmapapi import SQLMapApi
@@ -42,7 +43,7 @@ def parse_host(host_info):
         return False
 
     return host, port, admin_id
-
+ 
 # 随机选择一个节点
 
 
@@ -101,16 +102,17 @@ def get_headers(headers):
 
     # 拷贝对象 防止追加星号
     headers = headers.copy()
-
     # 检查额外参数是否存在 否则添加
-    for header in HEADERS:
-        if header in ('Referer', 'User-Agent', 'X-Forwarded-For', 'Client-IP', 'X-Real-IP'):
-            headers[header] = headers.get(header) or HEADERS.get(header)
+    for key, value in HEADERS.iteritems():
+        if key not in headers:
+            headers[key] = value
 
     # Cookie Referer特殊处理 污染的默认头统一添加星号
     for k, v in headers.iteritems():
         if k == 'Cookie':
-            headers[k] = v.replace(';', '*;') + '*'
+            cookie = Cookie.SimpleCookie(v)
+            headers[k] = '; '.join(
+                ["{0}={1}*".format(i[0], i[1].value) for i in cookie.items()])
 
         # 如果没有Referer则修改为当前的url根目录
         elif k == 'Referer':
@@ -229,12 +231,14 @@ def check_host_status(hosts):
                         logging.info('Delete Task Id: {0}'.format(taskid))
                         host_status[host] -= 1
 
-                elif db.tasks.count({'taskid': taskid}) == 0:
-                    # 恢复之前的任务
+                elif not db.tasks.count({'taskid': taskid}):
+                    # 没有找到的则恢复之前的数据
+                    url = api.option_list(taskid).get('options').get('url')
                     db.tasks.insert_one({
                         'taskid': taskid,
                         'host': host,
                         'status': status,
+                        'origin_url': url,
                         'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                     })
 
@@ -250,6 +254,13 @@ def run(url, data='', headers={}):
     while 1:
         print '#' * (238 / 2)
         host_status = check_host_status(hosts)
+
+        # 当前没有可用节点
+        if not host_status:
+            print 'Current no nodes'
+            time.sleep(2)
+            continue
+
         logging.info('Current Host Status: {0}'.format(
             json.dumps(host_status, indent=2)))
         print '#' * (238 / 2)
@@ -310,6 +321,7 @@ def free():
     db.tasks.remove()
     logging.info('UnInitialize Success')
 
+
 if __name__ == '__main__':
 
     db = conn()
@@ -330,7 +342,7 @@ if __name__ == '__main__':
     data = ''
     headers = {
         'User-Agent': '132',
-        'Cookie': 'a=1',
+        'Cookie': 'a=1; b=2; ',
         'X-Forwarded-For': '1.1.1.1',
         'Client-IP': '1.1.1.2',
         'Accept-Encoding': 'gzip, deflate, sdch',
