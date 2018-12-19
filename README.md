@@ -4,11 +4,12 @@
 
 ### 可部署多主机节点sqlmapapi来进行SQL注入测试(随机选择主机)
 
-```
+```bash
 # pip install requests
 # vim config.py
 ```
-```
+
+```python
 # API主机列表 格式 host:port:admin_id 如果不填写
 HOSTS = [
     # 'localhost:8775',
@@ -42,8 +43,10 @@ MAX_TASK_NUMBER = 8
 
 ...
 ```
+
 ### 在主机节点上启动sqlmapapi(使用Eventlet/Gevent/Tornaod作为WSGI Server)
-```
+
+```bash
 # pip install eventlet tornado gevent
 
 # cd sqlmap
@@ -52,7 +55,8 @@ MAX_TASK_NUMBER = 8
 ```
 
 ### 测试
-```
+
+```bash
 # python run.py
 ```
 
